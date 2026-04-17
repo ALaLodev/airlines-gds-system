@@ -1,0 +1,18 @@
+server:
+  port: 8081 # Los servicios de negocio suelen empezar en el rango 808x
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/gds_auth_db?createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+
+# Configuración de seguridad inicial
+jwt:
+  secret: "TuClaveSecretaSuperLargaParaFirmarLosTokensGDS2026"
+  expiration: 3600000 # 1 hora
