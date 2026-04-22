@@ -10,12 +10,15 @@ spring:
   cloud:
     gateway:
       routes:
-        # ----------------------------------------
-        # REGLA 1: Tráfico hacia el AUTH-SERVICE
-        # ----------------------------------------
+        # Tráfico hacia el AUTH-SERVICE
         - id: auth-service-route
           # 'lb://' significa Load Balancer. Le decimos: "Busca en Eureka quién se llama AUTH-SERVICE y mándale el tráfico"
           uri: lb://AUTH-SERVICE
           predicates:
-            # Si la URL que pide el cliente empieza por alguna de estas, aplica esta regla
-            - Path=/api/auth/**, /api/test/**
+            - Path=/api/auth/**
+
+        # RUTA PARA VUELOS:
+        - id: flight-service
+          uri: lb://FLIGHT-SERVICE
+          predicates:
+            - Path=/api/flights/**

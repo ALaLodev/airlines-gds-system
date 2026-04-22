@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/airlines-gds-system.iml" filepath="$PROJECT_DIR$/.idea/airlines-gds-system.iml" />
+      <module fileurl="file://$PROJECT_DIR$/services/flight-service/flight-service.iml" filepath="$PROJECT_DIR$/services/flight-service/flight-service.iml" />
     </modules>
   </component>
 </project>

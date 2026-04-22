@@ -26,7 +26,11 @@ public class JwtService {
      * Este metodo es el que genera el Token
      */
     public String generateToken(UserDetails userDetails) {
+
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+
         return Jwts.builder()
+                .claim("role", role) // Guardamos el rol dentro del token
                 .subject(userDetails.getUsername()) // El 'subject' suele ser el email/usuario
                 .issuedAt(new Date(System.currentTimeMillis())) // Fecha de creación (Ahora)
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Fecha de caducidad
