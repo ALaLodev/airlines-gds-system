@@ -16,3 +16,8 @@ spring:
 jwt:
   secret: "TuClaveSecretaSuperLargaParaFirmarLosTokensGDS2026"
   expiration: 3600000 # 1 hora
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
