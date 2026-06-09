@@ -34,10 +34,18 @@ public class AdminBookingService {
     private final AuthClient authClient;
     private final FlightClient flightClient;
 
-    public PaginatedResponse<AdminBookingDTO> getRecentBookings (int page, int size){
-        // 1. Buscamos las reservas ordenadas por ID descendente (las más recientes primero)
+    public PaginatedResponse<AdminBookingDTO> getRecentBookings(int page, int size, String pnr, String status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
-        Page<Reservation> reservationPage = reservationRepository.findAll(pageable);
+
+        PaymentStatus paymentStatus = null;
+        if (status != null && !status.isBlank()) {
+            paymentStatus = PaymentStatus.valueOf(status.toUpperCase());
+        }
+        String pnrFilter = (pnr != null && !pnr.isBlank()) ? pnr.trim().toUpperCase() : null;
+
+        Page<Reservation> reservationPage = (pnrFilter == null && paymentStatus == null)
+                ? reservationRepository.findAll(pageable)
+                : reservationRepository.findByFilters(pnrFilter, paymentStatus, pageable);
 
         // 2. Transformamos cada Reservation en un AdminBookingDTO cruzando los datos
         List<AdminBookingDTO> dtoList = reservationPage.getContent().stream().map(reservation -> {

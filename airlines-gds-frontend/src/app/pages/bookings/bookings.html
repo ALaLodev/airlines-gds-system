@@ -18,41 +18,18 @@
   <section class="filter-bar">
     <div class="filter-group flex-1">
       <label>Search PNR</label>
-      <input type="text" [(ngModel)]="filterPnr" (input)="onFilterChange()" class="filter-input" placeholder="e.g. AB123X">
+      <input type="text" [(ngModel)]="filterPnr" (input)="onSearchInput()" class="filter-input" placeholder="e.g. AB123X">
     </div>
     
     <div class="filter-group w-status">
       <label>Status</label>
       <select [(ngModel)]="filterStatus" (change)="onFilterChange()" class="filter-input">
-        <option>All Statuses</option>
-        <option>Completed</option>
-        <option>Pending</option>
-        <option>Cancelled</option>
+        <option value="">All Statuses</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="PENDING">Pending</option>
+        <option value="CANCELLED">Cancelled</option>
       </select>
     </div>
-    
-    <div class="filter-group w-date">
-      <label>Date Range</label>
-      <div class="date-picker-mock">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span>Oct 12 - Oct 20, 2023</span>
-      </div>
-    </div>
-    
-    <div class="filter-group w-agency">
-      <label>Agency</label>
-      <select [(ngModel)]="filterAgency" (change)="onFilterChange()" class="filter-input">
-        <option>All Agencies</option>
-        <option>Global Travel Inc.</option>
-        <option>Skybound Partners</option>
-        <option>Horizon Holidays</option>
-      </select>
-    </div>
-
-    <button class="btn-filter-icon" [style.opacity]="isLoading ? 0.5 : 1">
-      <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-      <svg *ngIf="isLoading" class="spinner" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-    </button>
   </section>
 
   <div class="table-card">
@@ -62,31 +39,34 @@
           <tr>
             <th>PNR</th>
             <th>Primary Passenger</th>
-            <th>Agency</th>
             <th>Flight</th>
             <th>Booking Date</th>
             <th class="text-center">Status</th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
-       <tbody>
-          @if (bookingList.length === 0 && !isLoading) {
-            <tr><td colspan="7" class="text-center" style="padding: 32px; color: #5f5a86;">No bookings found.</td></tr>
-          }
-          
-          @for (booking of bookingList; track booking.pnr) {
+        <tbody>
+          @if (isLoading) {
+            @for (skeleton of [1,2,3,4,5]; track skeleton) {
+              <tr class="skeleton-row">
+                <td><span class="skeleton-cell w-20">&nbsp;</span></td>
+                <td><span class="skeleton-cell w-40">&nbsp;</span></td>
+                <td><span class="skeleton-cell w-35">&nbsp;</span></td>
+                <td><span class="skeleton-cell w-30">&nbsp;</span></td>
+                <td class="text-center"><span class="skeleton-pill">&nbsp;</span></td>
+                <td class="text-right"><span class="skeleton-cell w-10">&nbsp;</span></td>
+              </tr>
+            }
+          } @else if (bookingList.length === 0) {
+            <tr><td colspan="6" class="text-center" style="padding: 32px; color: #5f5a86;">No bookings found.</td></tr>
+          } @else {
+            @for (booking of bookingList; track booking.pnr) {
             <tr>
               <td><span class="pnr-code">{{ booking.pnr }}</span></td>
               
               <td>
                 <div class="cell-texts">
                   <p class="txt-main">{{ booking.userEmail }}</p>
-                </div>
-              </td>
-              
-              <td>
-                <div class="cell-texts">
-                  <p class="txt-main">GDS Operator</p>
                 </div>
               </td>
               
@@ -115,7 +95,7 @@
                 </button>
               </td>
             </tr>
-          }
+          } }
         </tbody>
       </table>
     </div>
@@ -141,41 +121,56 @@
   </div>
 
   <div class="summary-grid">
-    <div class="summary-card">
-      <div class="card-top">
-        <h6>Total Volume</h6>
-        <svg class="icon-primary" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-      </div>
-      <h3>{{ metrics?.totalVolume || '$0.0M' }}</h3>
-      <p class="trend-up">+12% from last month</p>
-    </div>
+          <!-- Card 1 -->
+          <div class="summary-card">
+            <div class="card-top">
+              <h6>TOTAL BOOKINGS</h6>
+              <svg class="icon-primary" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 21H4.6c-.6 0-1-.4-1-1V4M21 8l-6 6-4-4-8 8" />
+              </svg>
+            </div>
+            <h3>{{ metrics?.totalBookings || '0' }}</h3>
+            <p class="trend-up">Total bookings made</p>
+          </div>
 
-    <div class="summary-card">
-      <div class="card-top">
-        <h6>Completion Rate</h6>
-        <svg class="icon-success" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      </div>
-      <h3>{{ metrics?.completionRate || '0.0%' }}</h3>
-      <p>Average for Q3 2023</p>
-    </div>
+          <!-- Card 2 -->
+          <div class="summary-card">
+            <div class="card-top">
+              <h6>COMPLETION RATE</h6>
+              <svg class="icon-success" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" />
+              </svg>
+            </div>
+            <h3>{{ metrics?.successRate | number:'1.1-2' }}%</h3>
+            <p>Overall success rate</p>
+          </div>
 
-    <div class="summary-card">
-      <div class="card-top">
-        <h6>Active Holds</h6>
-        <svg class="icon-warning" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <h3>{{ metrics?.activeHolds || '0' }}</h3>
-      <p class="trend-down">12 expiring soon</p>
-    </div>
+          <!-- Card 3 -->
+          <div class="summary-card">
+            <div class="card-top">
+              <h6>SUCCESSFUL BOOKINGS</h6>
+              <svg class="icon-success" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <h3>{{ metrics?.successfulBookings || '0' }}</h3>
+            <p class="trend-up">Bookings completed</p>
+          </div>
 
-    <div class="summary-card">
-      <div class="card-top">
-        <h6>Revenue Impact</h6>
-        <svg class="icon-primary" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
-      </div>
-      <h3>{{ metrics?.revenueImpact || '$0.00' }}</h3>
-      <p>Daily average</p>
-    </div>
+          <!-- Card 4 -->
+          <div class="summary-card">
+            <div class="card-top">
+              <h6>TOTAL REVENUE</h6>
+              <svg class="icon-primary" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="6" width="20" height="12" rx="2" />
+                <circle cx="12" cy="12" r="2" />
+                <path d="M6 12h.01M18 12h.01" />
+              </svg>
+            </div>
+            <h3>{{ metrics?.totalRevenue | currency }}</h3>
+            <p>Generated revenue</p>
+          </div>
   </div>
 
 </div>

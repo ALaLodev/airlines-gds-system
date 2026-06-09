@@ -21,10 +21,12 @@ public class AdminController {
 
     @GetMapping("/dashboard/recent")
     public ResponseEntity<PaginatedResponse<AdminBookingDTO>> getRecentBookings(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "pnr", required = false) String pnr,
+            @RequestParam(value = "status", required = false) String status) {
 
-        return ResponseEntity.ok(adminBookingService.getRecentBookings(page, size));
+        return ResponseEntity.ok(adminBookingService.getRecentBookings(page, size, pnr, status));
     }
 
     @GetMapping("/dashboard/kpis")

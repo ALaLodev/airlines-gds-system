@@ -2,7 +2,8 @@ package com.gds.airline.booking_service.repository;
 
 import com.gds.airline.booking_service.model.PaymentStatus;
 import com.gds.airline.booking_service.model.Reservation;
-import feign.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,7 +22,12 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     // 2. Sumar el total de dinero solo de las reservas con un estado concreto
     // Usamos COALESCE para que, si no hay ventas, devuelva 0 en lugar de un error NULL
     @Query("SELECT COALESCE(SUM(r.totalAmount), 0) FROM Reservation r WHERE r.status = :status")
-    BigDecimal sumTotalAmountByStatus(@Param("status") PaymentStatus status);
+    BigDecimal sumTotalAmountByStatus(PaymentStatus status);
+
+    @Query("SELECT r FROM Reservation r WHERE " +
+           "(:pnr IS NULL OR :pnr = '' OR r.pnr LIKE CONCAT('%', :pnr, '%')) AND " +
+           "(:status IS NULL OR r.status = :status)")
+    Page<Reservation> findByFilters(@org.springframework.data.repository.query.Param("pnr") String pnr, @org.springframework.data.repository.query.Param("status") PaymentStatus status, Pageable pageable);
 
     // 1. Agrupación para el Doughnut (JPQL)
     @Query("SELECT r.status, COUNT(r) FROM Reservation r GROUP BY r.status")

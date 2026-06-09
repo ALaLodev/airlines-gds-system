@@ -4,18 +4,19 @@ import { Observable } from 'rxjs';
 import { BookingDetail } from '../../pages/bookings/bookings';
 
 export interface PaginatedBookingsResponse {
-  content: BookingDetail[];
+  data: BookingDetail[];
+  currentPage: number;
+  pageSize: number;
   totalElements: number;
   totalPages: number;
-  size: number;
-  number: number;
+  isLast: boolean;
 }
 
 export interface BookingMetrics {
-  totalVolume: string;
-  completionRate: string;
-  activeHolds: number;
-  revenueImpact: string;
+  totalRevenue: number;
+  totalBookings: number;
+  successfulBookings: number;
+  successRate: number;
 }
 
 @Injectable({
@@ -30,22 +31,17 @@ export class BookingService {
   /**
    * Recupera las reservas desde el Backend aplicando paginación y filtros dinámicos
    */
-  getBookings(page: number, size: number, filters: { pnr?: string, status?: string, agency?: string }): Observable<PaginatedBookingsResponse> {
+  getBookings(page: number, size: number, filters: { pnr?: string, status?: string }): Observable<PaginatedBookingsResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    // Si el usuario ha escrito o seleccionado un filtro, lo añadimos a la petición
     if (filters.pnr) {
       params = params.set('pnr', filters.pnr.trim().toUpperCase());
     }
-    if (filters.status && filters.status !== 'All Statuses') {
-      params = params.set('status', filters.status.toUpperCase());
+    if (filters.status) {
+      params = params.set('status', filters.status);
     }
-    if (filters.agency && filters.agency !== 'All Agencies') {
-      params = params.set('agency', filters.agency);
-    }
-
     // El AuthInterceptor que hicimos añadirá el Token JWT automáticamente a esta llamada
     return this.http.get<PaginatedBookingsResponse>(`${this.apiUrl}/admin/dashboard/recent`, { params });
   }

@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
-// Asegúrate de que la ruta coincida con donde creaste tu booking.service.ts
+import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { BookingService, BookingMetrics } from '../../core/services/booking.service';
 
 export interface BookingDetail {
@@ -23,55 +24,69 @@ export interface BookingDetail {
 })
 export class Bookings implements OnInit {
   private bookingService = inject(BookingService);
+  private cdr = inject(ChangeDetectorRef);
 
-  // Exponemos la librería Math para poder usar Math.min() en el HTML
   Math = Math;
 
-  // Estado de los datos
   bookingList: BookingDetail[] = [];
   metrics?: BookingMetrics;
-  
-  // Estado de la paginación
+
   currentPage = 0;
   pageSize = 5;
   totalElements = 0;
   isLoading = false;
 
-  // Estado de los filtros bidireccionales
   filterPnr = '';
-  filterStatus = 'All Statuses';
-  filterAgency = 'All Agencies';
+  filterStatus = '';
+
+  private searchSubject = new Subject<string>();
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.currentPage = 0;
+      this.loadRealData();
+    });
     this.loadRealData();
     this.loadMetrics();
   }
 
+  onSearchInput(): void {
+    this.searchSubject.next(this.filterPnr);
+  }
+
   loadRealData(): void {
     this.isLoading = true;
-    const currentFilters = {
-      pnr: this.filterPnr,
-      status: this.filterStatus,
-      agency: this.filterAgency
-    };
+    const currentFilters: { pnr?: string; status?: string } = {};
+    if (this.filterPnr.trim()) currentFilters.pnr = this.filterPnr;
+    if (this.filterStatus) currentFilters.status = this.filterStatus;
 
     this.bookingService.getBookings(this.currentPage, this.pageSize, currentFilters).subscribe({
-      next: (response: any) => {
+      next: (response) => {
+        console.log('✅ loadRealData API success:', response);
         // Adaptamos al JSON de respuesta que me has pasado
         this.bookingList = response.data || []; 
         this.totalElements = response.totalElements || 0;
         this.isLoading = false;
+        this.cdr.markForCheck();
+        console.log('✅ loadRealData state updated: isLoading=', this.isLoading, ' list=', this.bookingList);
       },
       error: (err) => {
-        console.error('Error:', err);
+        console.error('❌ loadRealData Error:', err);
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   loadMetrics(): void {
     this.bookingService.getBookingMetrics().subscribe({
-      next: (data) => this.metrics = data,
+      next: (data) => {
+        this.metrics = data;
+        this.cdr.markForCheck();
+      },
       error: (err) => console.error('Error cargando KPIs:', err)
     });
   }
