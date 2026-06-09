@@ -1,0 +1,153 @@
+// TOKENS DE DISEÑO ASIGNADOS (Dashboard-Design.md)
+$sidebar-bg: #b6bcff;           // primary-fixed (Base lavanda del prototipo)
+$sidebar-title: #121b6f;        // on-primary-fixed (Azul ultra oscuro)
+$sidebar-subtitle: #fbf8ff;     // on-primary (Blanco roto/lavanda suave)
+$nav-text-inactive: #343d8e;    // on-primary-fixed-variant (Índigo medio)
+$nav-active-bg: #2a3385;        // on-primary-container (Azul profundo de selección)
+$nav-active-text: #ffffff;
+
+.sidebar {
+  width: 280px; // Layout architecture spec
+  height: 100vh;
+  background-color: $sidebar-bg;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  border-right: 1px solid rgba(79, 87, 170, 0.15);
+
+  .sidebar-header {
+    padding: 32px 24px 24px 24px; // Spacing layout rules
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    h2 {
+      margin: 0;
+      font-size: 22px; // title-lg
+      font-weight: 700;
+      color: $sidebar-title;
+      letter-spacing: -0.25px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba($sidebar-title, 0.6);
+    }
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 12px; // Margen interno para que las cápsulas no toquen el borde
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px; // Espaciado denso entre botones corporativos
+
+      li {
+        a {
+          display: flex;
+          align-items: center;
+          gap: 16px; // Espaciado entre Icono y Texto
+          padding: 12px 20px;
+          color: $nav-text-inactive;
+          text-decoration: none;
+          font-size: 14px; // body-md
+          font-weight: 600; // Medium-SemiBold weight para legibilidad B2B
+          border-radius: 8px; // rounded.lg (0.5rem) como indica tu manual para componentes contenedores
+          transition: all 0.2s ease-in-out;
+
+          .nav-icon {
+            flex-shrink: 0;
+            color: $nav-text-inactive;
+            transition: color 0.2s ease-in-out;
+          }
+
+          span {
+            line-height: 1;
+          }
+
+          &:hover {
+            background-color: rgba(42, 51, 133, 0.08);
+            color: $sidebar-title;
+
+            .nav-icon {
+              color: $sidebar-title;
+            }
+          }
+
+          // CÁPSULA SELECCIONADA EXACTA AL PROTOTIPO
+          &.active {
+            background-color: $nav-active-bg;
+            color: $nav-active-text;
+            box-shadow: 0 2px 4px rgba(42, 51, 133, 0.15);
+
+            .nav-icon {
+              color: $nav-active-text; // El icono se vuelve blanco
+            }
+
+            &:hover {
+              background-color: $nav-active-bg; // Mantiene el color sólido
+              color: $nav-active-text;
+            }
+          }
+        }
+      }
+    }
+  }
+  // ESTILOS DEL FOOTER (Settings y Logout)
+  .sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid rgba(79, 87, 170, 0.15); // Separador sutil
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      li a {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 20px;
+        color: $nav-text-inactive;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+
+        .nav-icon {
+          flex-shrink: 0;
+          color: $nav-text-inactive;
+          transition: color 0.2s ease-in-out;
+        }
+
+        span { line-height: 1; }
+
+        &:hover {
+          background-color: rgba(42, 51, 133, 0.08);
+          color: $sidebar-title;
+          .nav-icon { color: $sidebar-title; }
+        }
+
+        // Toque especial B2B: Salir se pinta en rojo sutil al pasar el ratón
+        &.logout-btn:hover {
+          background-color: rgba(172, 49, 73, 0.08); // Tint de error
+          color: #ac3149; // Tu color rojo 'error' del DESIGN.md
+          .nav-icon { color: #ac3149; }
+        }
+      }
+    }
+  }
+}

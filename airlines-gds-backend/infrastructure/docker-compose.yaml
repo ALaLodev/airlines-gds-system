@@ -1,0 +1,93 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: gds-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - gds-network
+    volumes: # 💾 Persistencia para la base de datos
+      - mysql_gds_data:/var/lib/mysql
+
+  redis-cache:
+    image: redis:alpine
+    container_name: gds-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - gds-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: gds-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+    networks:
+      - gds-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: gds-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - gds-network
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  gds-zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: gds-zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - gds-network
+
+  # ---------------------------------------------
+  # PROMETHEUS: Base de datos de métricas
+  # ---------------------------------------------
+  gds-prometheus:
+    image: prom/prometheus:latest
+    container_name: gds-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus # 💾 Persistencia para las métricas
+    networks:
+      - gds-network
+
+  # ---------------------------------------------
+  # GRAFANA: Panel visual de métricas
+  # ---------------------------------------------
+  gds-grafana:
+    image: grafana/grafana:latest
+    container_name: gds-grafana
+    ports:
+      - "3000:3000"
+    volumes: # 💾 Persistencia para los dashboards
+      - grafana_data:/var/lib/grafana
+    networks:
+      - gds-network
+
+networks:
+  gds-network:
+    driver: bridge
+
+# 💾 Declaración global de los cajones de memoria físicos
+volumes:
+  mysql_gds_data:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,23 @@
+// app.scss
+
+.app-layout {
+  display: flex;         // 🚀 La magia: Pone los elementos uno AL LADO del otro
+  min-height: 100vh;     // Ocupa el 100% del alto de la pantalla
+  width: 100%;
+  background-color: #fcf8ff; // Tu color de fondo base (surface)
+
+  app-sidebar {
+    flex-shrink: 0;      // Evita que el menú lateral se aplaste
+    height: 100vh;       // El menú ocupa toda la altura
+    position: sticky;    // Si haces scroll, el menú se queda fijo
+    top: 0;
+  }
+
+  .main-content {
+    flex: 1;             // 🚀 Ocupa TODO el espacio restante a la derecha
+    min-width: 0;        // Evita bugs visuales donde el contenido ensancha la pantalla
+    padding: 24px 32px;  // Margen interno B2B (respira el diseño)
+    display: flex;
+    flex-direction: column;
+  }
+}

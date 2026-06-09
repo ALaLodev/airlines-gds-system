@@ -1,0 +1,178 @@
+<div class="settings-container">
+    <header class="settings-header">
+    <h1>Configuración</h1>
+    <p>Gestiona las preferencias de tu cuenta y del sistema GDS</p>
+  </header>
+  
+  <div class="settings-layout">
+    
+    <nav class="settings-nav">
+      <h3 class="nav-title">Settings Menu</h3>
+      
+      <button class="nav-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile Settings</span>
+      </button>
+      
+      <button class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>User Management</span>
+      </button>
+      
+      <button class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+        <span>API Configuration</span>
+      </button>
+      
+      <button class="nav-item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span>Notifications</span>
+      </button>
+    </nav>
+
+    <div class="settings-content">
+      
+      <section class="settings-card">
+        <div class="card-header">
+          <div class="header-titles">
+            <h2>Profile Settings</h2>
+            <p>Update your personal information and account security preferences.</p>
+          </div>
+          <button class="btn-primary" (click)="saveChanges()">Save Changes</button>
+        </div>
+
+        <div class="profile-grid">
+          <div class="avatar-column">
+            <div class="avatar-wrapper">
+              <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=4f57aa&color=fff&size=128" alt="Current avatar">
+              <div class="avatar-overlay">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
+            </div>
+            <div class="avatar-texts">
+              <h4>Upload Avatar</h4>
+              <p>JPG, PNG or GIF. Max 5MB.</p>
+            </div>
+          </div>
+
+          <div class="form-column">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" [value]="userProfile.fullName" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" [value]="userProfile.email" class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label>Role</label>
+              <div class="static-field box-between">
+                <span>{{ userProfile.role }}</span>
+                <svg class="icon-verified" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm-2-5l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>2FA Status</label>
+              <div class="static-field box-between field-success">
+                <div class="status-indicator">
+                  <span class="pulse-dot"></span>
+                  <span class="status-text">Active & Secured</span>
+                </div>
+                <button class="btn-text">Revoke</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="card-title-icon">
+          <div class="icon-bg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h2>System Configuration</h2>
+        </div>
+
+        <div class="config-grid">
+          <div class="config-box">
+            <div class="config-box-header">
+              <span class="badge">Global GDS Parameter</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <h4>Default Currency</h4>
+            <div class="config-value">
+              <span class="value-highlight">USD</span>
+              <span class="value-desc">($) United States Dollar</span>
+            </div>
+          </div>
+
+          <div class="config-box">
+            <div class="config-box-header">
+              <span class="badge">Security</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h4>Session Timeout</h4>
+            <div class="config-value">
+              <span class="value-highlight">30</span>
+              <span class="value-desc">Minutes of Inactivity</span>
+            </div>
+          </div>
+
+          <div class="config-box">
+            <div class="config-box-header">
+              <span class="badge">Architecture</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <h4>Cloud Cluster</h4>
+            <div class="config-value">
+              <span class="value-highlight">EU-1</span>
+              <span class="value-desc">Frankfurt Instance</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="list-item">
+            <div class="item-left">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              <div>
+                <h5>Data Retention Policy</h5>
+                <p>Current: 7 Years Financial, 2 Years Operational</p>
+              </div>
+            </div>
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          
+          <div class="list-item">
+            <div class="item-left">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <div>
+                <h5>Supported Locales</h5>
+                <p>12 Active languages, Primary: EN-US</p>
+              </div>
+            </div>
+            <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </section>
+
+      <div class="settings-footer">
+        <div class="advanced-actions">
+          <button class="action-btn text-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Purge Cache
+          </button>
+          <button class="action-btn text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export Config
+          </button>
+        </div>
+        <p class="sync-info">Last manual sync: 12 Oct 2026, 14:45 GMT</p>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+/* Reset global B2B */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #fcf8ff; /* Tu token de fondo canvas */
+  overflow-x: hidden; /* Corta de raíz cualquier scroll horizontal */
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}

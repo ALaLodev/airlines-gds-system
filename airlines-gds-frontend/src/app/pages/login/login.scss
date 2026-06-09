@@ -1,0 +1,319 @@
+// TOKENS DEL SISTEMA DE DISEÑO
+$bg-canvas: #fcf8ff;
+$surface-card: #ffffff;
+$surface-container: #f0ebff;
+$on-surface: #322d56;
+$on-surface-variant: #5f5a86;
+$outline-variant: #b3acde;
+$primary-indigo: #4f57aa;
+$on-primary: #fbf8ff;
+$primary-dim: #424b9d;
+$error: #ac3149;
+$error-bg: rgba(172, 49, 73, 0.1);
+
+.login-wrapper {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: $bg-canvas;
+  padding: 24px;
+  box-sizing: border-box;
+
+  .login-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, #fcf8ff 0%, #f0ebff 100%);
+    z-index: 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle at center, rgba(103, 112, 196, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+  }
+
+  .login-content {
+    width: 100%;
+    max-width: 440px; // Diseño específico B2B
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // LOGO Y MARCA
+  .brand-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+
+    .logo-box {
+      width: 64px;
+      height: 64px;
+      background-color: $primary-indigo;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      color: $on-primary;
+      box-shadow: 0 8px 16px rgba(79, 87, 170, 0.15);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: $primary-indigo;
+      letter-spacing: -0.25px;
+    }
+
+    p {
+      margin: 4px 0 0 0;
+      font-size: 14px;
+      color: $on-surface-variant;
+      font-weight: 500;
+    }
+  }
+
+  // TARJETA PRINCIPAL
+  .login-card {
+    background: $surface-card;
+    border: 1px solid rgba($outline-variant, 0.5);
+    border-radius: 12px; // rounded-xl
+    padding: 32px; // p-lg
+    box-shadow: 0 10px 25px rgba(79, 87, 170, 0.05);
+
+    .card-header {
+      margin-bottom: 24px;
+      text-align: center;
+
+      h2 {
+        margin: 0;
+        font-size: 22px; // title-lg
+        font-weight: 500;
+        color: $on-surface;
+      }
+      p {
+        margin: 4px 0 0;
+        font-size: 14px;
+        color: $on-surface-variant;
+      }
+    }
+
+    .error-alert {
+      background-color: $error-bg;
+      color: $error;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .label-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        label {
+          font-size: 14px;
+          font-weight: 500;
+          color: $on-surface-variant;
+        }
+
+        .forgot-link {
+          font-size: 13px;
+          color: $primary-indigo;
+          text-decoration: none;
+          font-weight: 500;
+          &:hover { text-decoration: underline; }
+        }
+
+        .input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          .input-icon {
+            position: absolute;
+            left: 12px;
+            color: $on-surface-variant;
+          }
+
+          input {
+            width: 100%;
+            height: 40px; // standard B2B input height
+            padding: 0 40px; // espacio para iconos
+            background-color: $surface-container;
+            border: 1px solid $outline-variant;
+            border-radius: 6px;
+            font-size: 14px;
+            color: $on-surface;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.2s ease;
+
+            &::placeholder {
+              color: rgba($on-surface-variant, 0.6);
+            }
+
+            &:focus {
+              border-color: $primary-indigo;
+              box-shadow: 0 0 0 2px rgba($primary-indigo, 0.15);
+            }
+          }
+
+          .toggle-password {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: $on-surface-variant;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover { color: $primary-indigo; }
+          }
+        }
+      }
+
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          accent-color: $primary-indigo;
+          cursor: pointer;
+        }
+
+        label {
+          font-size: 14px;
+          color: $on-surface-variant;
+          cursor: pointer;
+        }
+      }
+
+      .btn-primary {
+        margin-top: 8px;
+        height: 40px;
+        background-color: $primary-indigo;
+        color: $on-primary;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.15s ease;
+        box-shadow: 0 2px 4px rgba(79, 87, 170, 0.2);
+
+        &:hover:not(:disabled) {
+          background-color: $primary-dim;
+        }
+        
+        &:active:not(:disabled) {
+          transform: scale(0.98);
+        }
+
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+
+    // INDICADORES DE CONFIANZA
+    .trust-indicators {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba($outline-variant, 0.3);
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+
+      .indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba($on-surface-variant, 0.7);
+
+        span {
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+  }
+
+  // FOOTER EXTERNO
+  .login-footer {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: $on-surface-variant;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+
+      &:hover { color: $primary-indigo; }
+    }
+  }
+
+  .copyright {
+    margin-top: 32px;
+    text-align: center;
+    p {
+      font-size: 11px;
+      color: rgba($on-surface-variant, 0.5);
+    }
+  }
+}
+
+// Keyframe para el loader
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

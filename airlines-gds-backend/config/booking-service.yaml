@@ -1,0 +1,57 @@
+server:
+  port: 8083
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true # <--- AÑADE ESTO
+    hostname: localhost
+
+spring:
+  datasource:
+    # El parámetro createDatabaseIfNotExist te ahorrará tener que crearla a mano en DBeaver
+    url: jdbc:mysql://localhost:3306/bookings_db?createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  Kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+    consumer:
+      group-id: booking-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        # Le decimos que ignore el paquete de origen
+        spring.json.use.type.headers: false
+        # Le indicamos a qué clase por defecto debe convertirlo
+        spring.json.value.default.type: com.gds.airline.booking_service.event.PaymentResultEvent
+
+management:
+  # 1. Configuración de Prometheus (Métricas)
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  endpoint:
+    prometheus:
+      enabled: true
+
+  # 2. Configuración de Zipkin (Trazabilidad)
+  tracing:
+    sampling:
+      probability: 1.0 # Significa que traza el 100% de las peticiones
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
