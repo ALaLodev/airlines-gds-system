@@ -1,0 +1,30 @@
+# Compilation output
+**/target/
+**/dist/
+**/out-tsc/
+**/build/
+
+# Node dependencies
+**/node_modules/
+
+# Logs
+*.log
+**/npm-debug.log*
+**/yarn-error.log*
+
+# IDE settings
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# System/Misc files
+.DS_Store
+Thumbs.db
+/.angular/cache
+.sass-cache/
+/coverage
