@@ -80,6 +80,14 @@ spring:
           filters:
             - AuthenticationFilter
 
+        # RUTA PARA AGENCIES:
+        - id: agency-service
+          uri: lb://AGENCY-SERVICE
+          predicates:
+            - Path=/api/agencies/**
+          filters:
+            - AuthenticationFilter
+
 # Configuración fina del Circuit Breaker (Tiempos de espera y fallos)
 resilience4j:
   circuitbreaker:

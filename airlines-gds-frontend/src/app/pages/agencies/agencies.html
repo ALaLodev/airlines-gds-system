@@ -1,0 +1,511 @@
+<div class="agencies-container">
+  <!-- Page Header Section -->
+  <div class="page-header">
+    <div class="header-titles">
+
+      <h2>Agencies</h2>
+      <p class="subtitle">Manage global distribution partners and travel agency performance.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="openAddModal()">
+        <span class="material-symbols-outlined">add</span>
+        Add New Agency
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined">check_circle</span>
+      <p>{{ successMessage }}</p>
+      <button class="alert-close" (click)="successMessage = ''">&times;</button>
+    </div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined">error</span>
+      <p>{{ errorMessage }}</p>
+      <button class="alert-close" (click)="errorMessage = ''">&times;</button>
+    </div>
+  }
+
+  <!-- Dashboard Style Metric Bento Grid -->
+  <div class="summary-grid">
+    <!-- Total Agencies -->
+    <div class="summary-card">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Total Agencies</p>
+          <h3 class="card-value">{{ metrics?.totalAgencies || 0 }}</h3>
+          <div class="card-badge text-secondary">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>+{{ metrics?.totalAgenciesChange || 0 }}% vs LY</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper bg-primary-container text-primary">
+          <span class="material-symbols-outlined">groups</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">public</span>
+      </div>
+    </div>
+
+    <!-- Active Bookings -->
+    <div class="summary-card">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Active Bookings</p>
+          <h3 class="card-value">{{ metrics?.activeBookings | number }}</h3>
+          <div class="card-badge text-secondary">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>+{{ metrics?.activeBookingsChange || 0 }}%</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper bg-secondary-container text-secondary">
+          <span class="material-symbols-outlined">flight_takeoff</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">airplane_ticket</span>
+      </div>
+    </div>
+
+    <!-- Revenue -->
+    <div class="summary-card">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Revenue (MTD)</p>
+          <h3 class="card-value">${{ (metrics?.revenueMtd || 0) / 1000000 | number:'1.1-1' }}M</h3>
+          <div class="card-badge text-error">
+            <span class="material-symbols-outlined">trending_down</span>
+            <span>{{ metrics?.revenueMtdChange || 0 }}%</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper bg-tertiary-container text-tertiary">
+          <span class="material-symbols-outlined">payments</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+      </div>
+    </div>
+
+    <!-- Compliance -->
+    <div class="summary-card">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Compliance Rate</p>
+          <h3 class="card-value">{{ metrics?.complianceRate || 0 }}%</h3>
+          <div class="card-badge text-on-surface-variant">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Stable</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper bg-surface-variant text-on-surface-variant">
+          <span class="material-symbols-outlined">verified_user</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">security</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="filter-bar">
+    <div class="filter-group filter-search flex-grow">
+      <span class="material-symbols-outlined">filter_list</span>
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Filter by Agency Name, IATA ID, or Location..." 
+        [(ngModel)]="searchQuery" 
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+    
+    <div class="filter-group filter-selects">
+      <select class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="applyFiltersAndPagination()">
+        <option value="">All Statuses</option>
+        <option value="ACTIVE">Active Only</option>
+        <option value="SUSPENDED">Suspended</option>
+      </select>
+      
+      <select class="filter-select" [(ngModel)]="regionFilter" (ngModelChange)="applyFiltersAndPagination()">
+        <option value="">Global Region</option>
+        <option value="EMEA">EMEA</option>
+        <option value="APAC">APAC</option>
+        <option value="AMER">AMER</option>
+      </select>
+    </div>
+
+    <div class="filter-actions ml-auto">
+      <button class="btn-icon active">
+        <span class="material-symbols-outlined">grid_view</span>
+      </button>
+      <button class="btn-icon">
+        <span class="material-symbols-outlined">view_list</span>
+      </button>
+      <div class="divider"></div>
+      <button class="btn-text-icon">
+        <span class="material-symbols-outlined">download</span>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Agency Data Table Section -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Agency Name & ID</th>
+            <th>Location</th>
+            <th>Contact Person</th>
+            <th>Bookings (30d)</th>
+            <th class="text-center">Status</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <!-- Skeleton Rows -->
+            @for (item of [1, 2, 3, 4]; track $index) {
+              <tr class="skeleton-row">
+                <td><div class="flex items-center gap-3"><div class="skeleton-avatar"></div><div class="skeleton-cell w-40"></div></div></td>
+                <td><span class="skeleton-cell w-30"></span></td>
+                <td><span class="skeleton-cell w-35"></span></td>
+                <td><span class="skeleton-cell w-35"></span></td>
+                <td><span class="skeleton-pill"></span></td>
+                <td class="text-right"><span class="material-symbols-outlined skeleton-icon">more_vert</span></td>
+              </tr>
+            }
+          } @else if (agencies.length === 0) {
+            <tr>
+              <td colspan="6" class="empty-state">
+                <span class="material-symbols-outlined">domain_disabled</span>
+                <p>No agencies match your search criteria.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (agency of agencies; track agency.id) {
+              <tr>
+                <td>
+                  <div class="cell-agency">
+                    <div class="agency-avatar">{{ getInitials(agency.agencyName) }}</div>
+                    <div class="cell-texts">
+                      <p class="txt-main fw-bold">{{ agency.agencyName }}</p>
+                      <p class="txt-sub font-mono">IATA: {{ agency.iataCode }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="cell-texts">
+                    <p class="txt-main">{{ agency.city }}, {{ agency.country }}</p>
+                    <p class="txt-sub">{{ agency.region }} Region</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="cell-texts">
+                    <p class="txt-main fw-medium">{{ agency.contactName }}</p>
+                    <p class="txt-sub underline">{{ agency.contactEmail }}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="capacity-container">
+                    <span class="capacity-count fw-bold">{{ agency.bookings30d | number }}</span>
+                    <div class="capacity-bar">
+                      <div class="capacity-progress" 
+                           [class.bg-primary]="agency.bookings30d > 0" 
+                           [class.bg-error]="agency.bookings30d === 0" 
+                           [style.width.%]="getBookingPercentage(agency.bookings30d)"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">
+                  <span 
+                    class="status-pill"
+                    [class.active]="agency.status === 'ACTIVE'"
+                    [class.suspended]="agency.status === 'SUSPENDED'"
+                  >
+                    {{ agency.status }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <button class="btn-action-menu">
+                    <span class="material-symbols-outlined">more_vert</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 0) {
+      <div class="pagination-bar">
+        <p class="page-info">
+          Showing page <span>{{ currentPage + 1 }}</span> of <span>{{ totalPages }}</span> ({{ totalElements }} total agencies)
+        </p>
+        <div class="page-controls">
+          <button class="btn-page-icon" [disabled]="currentPage === 0" (click)="prevPage()">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <div class="page-numbers">
+            @for (p of [].constructor(totalPages); track $index) {
+              <button 
+                class="page-num" 
+                [class.active]="$index === currentPage" 
+                (click)="currentPage = $index; applyFiltersAndPagination()"
+              >
+                {{ $index + 1 }}
+              </button>
+            }
+          </div>
+          <button class="btn-page-icon" [disabled]="currentPage === totalPages - 1" (click)="nextPage()">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Regional Performance Insight Card -->
+  <div class="insights-grid mt-8">
+    <div class="map-card">
+      <div class="map-card-content">
+        <h4>Agency Distribution Map</h4>
+        <p>Visual density of global agency partners by airport hub proximity.</p>
+      </div>
+      <div class="map-bg-overlay">
+        <div class="map-bg-image"></div>
+        <div class="map-gradient"></div>
+      </div>
+    </div>
+    
+    <div class="top-performers-card">
+      <h4>Top Performers</h4>
+      <ul class="performers-list">
+        @for (performer of topPerformers; track performer.id; let i = $index) {
+          <li>
+            <div class="performer-info">
+              <div class="rank-badge">#{{ i + 1 }}</div>
+              <span class="performer-name">{{ performer.agencyName }}</span>
+            </div>
+            <span class="performer-value">{{ performer.bookings30d | number }} bkg</span>
+          </li>
+        }
+      </ul>
+      <button class="btn-outline-primary w-full mt-6" (click)="openRankingModal()">
+        View Ranking Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Agency Modal -->
+  @if (showAddModal) {
+    <div class="modal-overlay" (click)="closeAddModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Add New Agency</h2>
+          <button class="modal-close-btn" (click)="closeAddModal()">&times;</button>
+        </div>
+        <form (ngSubmit)="onSubmitAgency()" #agencyForm="ngForm">
+          <div class="modal-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="agencyName">Agency Name</label>
+                <input type="text" id="agencyName" name="agencyName" [(ngModel)]="newAgency.agencyName" required />
+              </div>
+              <div class="form-group">
+                <label for="iataCode">IATA Code</label>
+                <input type="text" id="iataCode" name="iataCode" [(ngModel)]="newAgency.iataCode" maxlength="7" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" [(ngModel)]="newAgency.city" required />
+              </div>
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="country" [(ngModel)]="newAgency.country" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="region">Region</label>
+                <select id="region" name="region" [(ngModel)]="newAgency.region" required>
+                  <option value="EMEA">EMEA</option>
+                  <option value="APAC">APAC</option>
+                  <option value="AMER">AMER</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" [(ngModel)]="newAgency.status" required>
+                  <option value="ACTIVE">Active</option>
+                  <option value="SUSPENDED">Suspended</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="contactName">Contact Person</label>
+                <input type="text" id="contactName" name="contactName" [(ngModel)]="newAgency.contactName" required />
+              </div>
+              <div class="form-group">
+                <label for="contactEmail">Contact Email</label>
+                <input type="email" id="contactEmail" name="contactEmail" [(ngModel)]="newAgency.contactEmail" required />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" (click)="closeAddModal()">Cancel</button>
+            <button type="submit" class="btn-modal-primary" [disabled]="!agencyForm.valid">Save Agency</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Ranking Report Modal -->
+  @if (showRankingModal) {
+    <div class="modal-overlay" (click)="closeRankingModal()">
+      <div class="ranking-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="ranking-modal-title">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <h2>Agency Ranking Report</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeRankingModal()">&times;</button>
+        </div>
+
+        <div class="ranking-modal-body">
+          <!-- Summary Stats -->
+          <div class="ranking-summary-row">
+            <div class="ranking-stat-chip">
+              <span class="material-symbols-outlined">groups</span>
+              <div>
+                <span class="stat-value">{{ allAgencies.length }}</span>
+                <span class="stat-label">Total Agencies</span>
+              </div>
+            </div>
+            <div class="ranking-stat-chip">
+              <span class="material-symbols-outlined">confirmation_number</span>
+              <div>
+                <span class="stat-value">{{ totalRankingBookings | number }}</span>
+                <span class="stat-label">Total Bookings</span>
+              </div>
+            </div>
+            <div class="ranking-stat-chip">
+              <span class="material-symbols-outlined">avg_pace</span>
+              <div>
+                <span class="stat-value">{{ avgRankingBookings | number }}</span>
+                <span class="stat-label">Avg / Agency</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Region Breakdown -->
+          <div class="ranking-region-section">
+            <h4>Region Breakdown</h4>
+            <div class="region-chips">
+              @for (rs of regionStats; track rs.region) {
+                <div class="region-chip">
+                  <span class="region-tag">{{ rs.region }}</span>
+                  <div class="region-detail">
+                    <span>{{ rs.count }} agencies</span>
+                    <span class="region-separator">&bull;</span>
+                    <span>{{ rs.totalBookings | number }} bkg</span>
+                    <span class="region-separator">&bull;</span>
+                    <span>{{ rs.avgCompliance }}% compliance</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Leaderboard Table -->
+          <div class="ranking-table-wrapper">
+            <table class="ranking-table">
+              <thead>
+                <tr>
+                  <th class="rank-col">#</th>
+                  <th class="sortable" (click)="toggleRankingSort('agencyName')">
+                    Agency
+                    <span class="material-symbols-outlined sort-icon">{{ getRankingSortIcon('agencyName') }}</span>
+                  </th>
+                  <th>Region</th>
+                  <th class="sortable" (click)="toggleRankingSort('bookings30d')">
+                    Bookings (30d)
+                    <span class="material-symbols-outlined sort-icon">{{ getRankingSortIcon('bookings30d') }}</span>
+                  </th>
+                  <th class="sortable" (click)="toggleRankingSort('complianceRate')">
+                    Compliance
+                    <span class="material-symbols-outlined sort-icon">{{ getRankingSortIcon('complianceRate') }}</span>
+                  </th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (agency of rankedAgencies; track agency.id; let i = $index) {
+                  <tr [class.top-3]="i < 3">
+                    <td class="rank-col">
+                      @if (i < 3) {
+                        <span class="rank-medal rank-{{ i + 1 }}">{{ i + 1 }}</span>
+                      } @else {
+                        <span class="rank-number">{{ i + 1 }}</span>
+                      }
+                    </td>
+                    <td>
+                      <div class="ranking-agency-cell">
+                        <div class="ranking-avatar">{{ getInitials(agency.agencyName) }}</div>
+                        <div>
+                          <span class="ranking-name">{{ agency.agencyName }}</span>
+                          <span class="ranking-iata">{{ agency.iataCode }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="region-badge">{{ agency.region }}</span>
+                    </td>
+                    <td>
+                      <div class="ranking-bookings">
+                        <span class="booking-value">{{ agency.bookings30d | number }}</span>
+                        <div class="ranking-bar">
+                          <div class="ranking-bar-fill" [style.width.%]="(agency.bookings30d / rankingMaxBookings) * 100"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="compliance-badge" [class.high]="agency.complianceRate >= 90" [class.mid]="agency.complianceRate >= 70 && agency.complianceRate < 90" [class.low]="agency.complianceRate < 70">
+                        {{ agency.complianceRate }}%
+                      </span>
+                    </td>
+                    <td>
+                      <div class="perf-indicator">
+                        @if (agency.bookings30d >= avgRankingBookings) {
+                          <span class="material-symbols-outlined perf-up">trending_up</span>
+                          <span class="perf-label perf-up">Above Avg</span>
+                        } @else {
+                          <span class="material-symbols-outlined perf-down">trending_down</span>
+                          <span class="perf-label perf-down">Below Avg</span>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
