@@ -77,4 +77,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         return user.getEmail();
     }
+
+    public Long getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+        return user.getId();
+    }
 }

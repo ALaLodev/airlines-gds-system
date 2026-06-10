@@ -1,0 +1,368 @@
+<div class="flights-container">
+  
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-titles">
+      <div class="breadcrumb">
+        <span>GDS Portal</span>
+        <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="current">Flights</span>
+      </div>
+      <h1>Flight Schedules</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadFlights()">
+        <svg class="icon-refresh" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M16 3h5v5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 21H3v-5"/></svg>
+        Sync List
+      </button>
+      <button class="btn-primary" (click)="openScheduleModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        Schedule Flight
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined">check_circle</span>
+      <p>{{ successMessage }}</p>
+      <button class="alert-close" (click)="successMessage = ''">&times;</button>
+    </div>
+  }
+  @if (errorMessage) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined">error</span>
+      <p>{{ errorMessage }}</p>
+      <button class="alert-close" (click)="errorMessage = ''">&times;</button>
+    </div>
+  }
+
+  <!-- Metrics Bento Grid -->
+  <div class="summary-grid">
+    <!-- Active Routes -->
+    <div class="summary-card summary-card--routes">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Total Active Routes</p>
+          <h3 class="card-value">{{ totalActiveRoutes }}</h3>
+          <div class="card-badge">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>+12.5%</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper">
+          <span class="material-symbols-outlined">map</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">public</span>
+      </div>
+    </div>
+
+    <!-- On-Time Performance -->
+    <div class="summary-card summary-card--performance">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">On-Time Performance<br>(%)</p>
+          <h3 class="card-value">{{ onTimePerformance }}%</h3>
+          <div class="card-badge">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            <span>Above Target</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper">
+          <span class="material-symbols-outlined">schedule</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">speed</span>
+      </div>
+    </div>
+
+    <!-- Flights Today -->
+    <div class="summary-card summary-card--today">
+      <div class="card-content">
+        <div class="card-info">
+          <p class="card-title">Flights Today</p>
+          <h3 class="card-value">{{ flightsToday }}</h3>
+          <div class="card-badge">
+            <span class="material-symbols-outlined">calendar_today</span>
+            <span>Today, 24 Oct</span>
+          </div>
+        </div>
+        <div class="card-icon-wrapper">
+          <span class="material-symbols-outlined">flight_takeoff</span>
+        </div>
+      </div>
+      <div class="card-bg-icon">
+        <span class="material-symbols-outlined">airplane_ticket</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Filter and Table Section -->
+  <div class="filter-bar">
+    <div class="filter-group flex-1">
+      <label>Search Directory</label>
+      <input 
+        type="text" 
+        class="filter-input" 
+        placeholder="Search flight number, origin, or destination..." 
+        [(ngModel)]="searchQuery" 
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <div class="filter-group w-status">
+      <label>Filter Status</label>
+      <div class="filter-tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'ALL'" 
+          (click)="setFilter('ALL')"
+        >
+          All
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'IN_AIR'" 
+          (click)="setFilter('IN_AIR')"
+        >
+          In Air
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedFilter === 'DELAYED'" 
+          (click)="setFilter('DELAYED')"
+        >
+          Delayed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table Card -->
+  <div class="table-card">
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Flight No</th>
+            <th>Route (IATA)</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Available Seats</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading) {
+            <!-- Skeleton Rows -->
+            @for (item of [1, 2, 3, 4, 5]; track $index) {
+              <tr class="skeleton-row">
+                <td><span class="skeleton-cell w-30"></span></td>
+                <td><span class="skeleton-cell w-40"></span></td>
+                <td><span class="skeleton-cell w-35"></span></td>
+                <td><span class="skeleton-cell w-35"></span></td>
+                <td><span class="skeleton-cell w-20"></span></td>
+                <td><span class="skeleton-pill"></span></td>
+                <td><span class="skeleton-cell w-10"></span></td>
+              </tr>
+            }
+          } @else if (paginatedFlights.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-state">
+                <span class="material-symbols-outlined">flight_land</span>
+                <p>No flights scheduled match your search criteria.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (flight of paginatedFlights; track flight.id || flight.flightNumber) {
+              <tr>
+                <td class="pnr-code">{{ flight.flightNumber }}</td>
+                <td>
+                  <div class="cell-passenger">
+                    <span class="material-symbols-outlined text-outline">flight_takeoff</span>
+                    <div class="cell-texts">
+                      <p class="txt-main fw-bold">{{ flight.origin }} &rarr; {{ flight.destination }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="cell-texts">
+                    <p class="txt-main">{{ flight.departureTime | date:'shortTime' }}</p>
+                    <p class="txt-sub">{{ flight.departureTime | date:'mediumDate' }}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="cell-texts">
+                    <p class="txt-main">{{ flight.arrivalTime | date:'shortTime' }}</p>
+                    <p class="txt-sub">{{ flight.arrivalTime | date:'mediumDate' }}</p>
+                  </div>
+                </td>
+                <td class="price-cell">{{ flight.price | currency:'USD' }}</td>
+                <td>
+                  @let status = getFlightStatus(flight);
+                  <span 
+                    class="status-pill"
+                    [class.completed]="status === 'On-Time'"
+                    [class.pending]="status === 'Delayed'"
+                    [class.cancelled]="status === 'Cancelled'"
+                  >
+                    {{ status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="capacity-container">
+                    <span class="capacity-count">{{ flight.availableSeats }} left</span>
+                    <div class="capacity-bar">
+                      <div class="capacity-progress" [style.width.%]="getCapacityPercentage(flight)"></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="pagination-bar">
+        <p class="page-info">
+          Showing page <span>{{ currentPage + 1 }}</span> of <span>{{ totalPages }}</span> ({{ totalElements }} total elements)
+        </p>
+        <div class="page-controls">
+          <button class="btn-page-icon" [disabled]="currentPage === 0" (click)="prevPage()">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <div class="page-numbers">
+            @for (p of [].constructor(totalPages); track $index) {
+              <button 
+                class="page-num" 
+                [class.active]="$index === currentPage" 
+                (click)="currentPage = $index; applyFiltersAndPagination()"
+              >
+                {{ $index + 1 }}
+              </button>
+            }
+          </div>
+          <button class="btn-page-icon" [disabled]="currentPage === totalPages - 1" (click)="nextPage()">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Schedule Flight Modal -->
+  @if (showScheduleModal) {
+    <div class="modal-overlay" (click)="closeScheduleModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Schedule New Flight</h2>
+          <button class="modal-close-btn" (click)="closeScheduleModal()">&times;</button>
+        </div>
+        <form (ngSubmit)="onSubmitSchedule()" #scheduleForm="ngForm">
+          <div class="modal-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="flightNumber">Flight Number</label>
+                <input 
+                  type="text" 
+                  id="flightNumber" 
+                  name="flightNumber" 
+                  [(ngModel)]="newFlightNumber" 
+                  placeholder="e.g. IB3012" 
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="origin">Origin (IATA)</label>
+                <input 
+                  type="text" 
+                  id="origin" 
+                  name="origin" 
+                  [(ngModel)]="newOrigin" 
+                  placeholder="e.g. MAD" 
+                  maxlength="3" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="destination">Destination (IATA)</label>
+                <input 
+                  type="text" 
+                  id="destination" 
+                  name="destination" 
+                  [(ngModel)]="newDestination" 
+                  placeholder="e.g. JFK" 
+                  maxlength="3" 
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="departureTime">Departure Time</label>
+                <input 
+                  type="datetime-local" 
+                  id="departureTime" 
+                  name="departureTime" 
+                  [(ngModel)]="newDepartureTime" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="arrivalTime">Arrival Time</label>
+                <input 
+                  type="datetime-local" 
+                  id="arrivalTime" 
+                  name="arrivalTime" 
+                  [(ngModel)]="newArrivalTime" 
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="price">Price (USD)</label>
+                <input 
+                  type="number" 
+                  id="price" 
+                  name="price" 
+                  [(ngModel)]="newPrice" 
+                  placeholder="e.g. 450" 
+                  min="1" 
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="availableSeats">Available Seats</label>
+                <input 
+                  type="number" 
+                  id="availableSeats" 
+                  name="availableSeats" 
+                  [(ngModel)]="newAvailableSeats" 
+                  placeholder="e.g. 150" 
+                  min="1" 
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" (click)="closeScheduleModal()">Cancel</button>
+            <button type="submit" class="btn-modal-primary" [disabled]="!scheduleForm.valid">Confirm Schedule</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+</div>

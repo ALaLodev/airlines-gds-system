@@ -31,4 +31,10 @@ public class AuthController {
         String email = authService.getUserEmailById(id);
         return ResponseEntity.ok(email);
     }
+
+    @GetMapping("/users/by-email")
+    public ResponseEntity<Long> getUserIdByEmail(@RequestParam String email) {
+        Long id = authService.getUserIdByEmail(email);
+        return ResponseEntity.ok(id);
+    }
 }

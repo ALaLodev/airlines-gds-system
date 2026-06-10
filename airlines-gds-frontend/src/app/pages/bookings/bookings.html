@@ -15,6 +15,14 @@
     </button>
   </header>
 
+  <!-- Messages -->
+  @if (successMessage) {
+    <div class="alert alert-success">
+      <p>{{ successMessage }}</p>
+      <button class="alert-close" (click)="successMessage = ''">&times;</button>
+    </div>
+  }
+
   <section class="filter-bar">
     <div class="filter-group flex-1">
       <label>Search PNR</label>
@@ -172,5 +180,76 @@
             <p>Generated revenue</p>
           </div>
   </div>
+
+  <!-- Create Booking Modal -->
+  @if (showCreateModal) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Create New Booking</h2>
+          <button class="modal-close-btn" (click)="closeCreateModal()">&times;</button>
+        </div>
+        <form (ngSubmit)="onSubmitBooking()" #bookingForm="ngForm">
+          <div class="modal-body">
+            
+            @if (errorMessage) {
+              <div class="alert alert-error">
+                <span class="material-symbols-outlined">error</span>
+                <p>{{ errorMessage }}</p>
+              </div>
+            }
+
+            <div class="form-group">
+              <label for="passengerEmail">Passenger Email</label>
+              <input 
+                type="email" 
+                id="passengerEmail" 
+                name="passengerEmail" 
+                [(ngModel)]="passengerEmail" 
+                placeholder="e.g. agency@test.com" 
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="flightSchedule">Select Flight</label>
+              <select 
+                id="flightSchedule" 
+                name="flightSchedule" 
+                [(ngModel)]="selectedFlightId" 
+                required
+              >
+                <option [value]="null" disabled selected>Choose a flight...</option>
+                @for (flight of availableFlights; track flight.id) {
+                  <option [value]="flight.id">
+                    {{ flight.flightNumber }} ({{ flight.origin }} &rarr; {{ flight.destination }}) - {{ flight.price | currency }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="totalAmount">Total Amount (USD)</label>
+              <input 
+                type="text" 
+                id="totalAmount" 
+                name="totalAmount" 
+                [value]="getSelectedFlightPrice() | currency" 
+                readonly 
+                class="readonly-input"
+              />
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" (click)="closeCreateModal()">Cancel</button>
+            <button type="submit" class="btn-modal-primary" [disabled]="!bookingForm.valid || isSaving">
+              {{ isSaving ? 'Booking...' : 'Confirm Booking' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 
 </div>

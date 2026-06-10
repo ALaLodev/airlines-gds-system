@@ -1,4 +1,5 @@
-// TOKENS DEL SISTEMA
+// TOKENS DEL SISTEMA (De style_guide.md)
+$bg-canvas: #fcf8ff;
 $surface-card: #ffffff;
 $surface-container-low: #f6f1ff;
 $surface-container: #f0ebff;
@@ -8,6 +9,7 @@ $on-surface-variant: #5f5a86;
 $outline-variant: #b3acde;
 
 $primary-indigo: #4f57aa;
+$primary-dim: #424b9d;
 $primary-container: rgba(79, 87, 170, 0.1);
 $on-primary: #fbf8ff;
 
@@ -15,9 +17,10 @@ $on-primary: #fbf8ff;
 $success: #6c7f1b;
 $success-bg: #e9f7c2;
 $error: #ac3149;
-$error-bg: #f76a80;
+$error-bg: rgba(172, 49, 73, 0.1);
+$error-container: #f76a80;
 
-.bookings-container {
+.flights-container {
   width: 100%;
   font-family: 'Inter', sans-serif;
   animation: fadeIn 0.4s ease-out;
@@ -81,10 +84,18 @@ $error-bg: #f76a80;
       color: $on-surface-variant;
       margin-bottom: 8px;
 
+      .chevron {
+        color: $outline-variant;
+      }
       .current { color: $primary-indigo; }
     }
 
     h1 { margin: 0; font-size: 32px; font-weight: 700; color: $on-surface; }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
   }
 
   .btn-primary {
@@ -100,14 +111,250 @@ $error-bg: #f76a80;
     font-weight: 500;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba($primary-indigo, 0.2);
-    transition: opacity 0.2s, transform 0.1s;
+    transition: background-color 0.2s, transform 0.1s;
 
-    &:hover { opacity: 0.9; }
+    &:hover { background-color: $primary-dim; }
+    &:active { transform: scale(0.98); }
+  }
+
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: $surface-card;
+    color: $primary-indigo;
+    border: 1px solid $outline-variant;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+
+    &:hover { background-color: $surface-container-low; }
     &:active { transform: scale(0.98); }
   }
 }
 
-// 2. BARRA DE FILTROS
+// ALERTS
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  position: relative;
+  animation: slideDown 0.3s ease-out;
+
+  span { font-size: 20px; }
+  p { margin: 0; font-size: 14px; font-weight: 500; flex: 1; }
+  
+  .alert-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    &:hover { opacity: 1; }
+  }
+
+  &.alert-success {
+    background-color: $success-bg;
+    color: darken($success, 15%);
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  &.alert-error {
+    background-color: $error-bg;
+    color: $error;
+    border: 1px solid rgba($error, 0.2);
+  }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// 2. METRICS
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+
+  @media (min-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+
+  .summary-card {
+    background-color: $surface-card;
+    border: 1px solid rgba(79, 87, 170, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(79, 87, 170, 0.06);
+      
+      .card-bg-icon span {
+        transform: scale(1.05);
+      }
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: $on-surface-variant;
+      line-height: 1.35;
+      letter-spacing: -0.1px;
+    }
+
+    .card-value {
+      margin: 4px 0 0 0;
+      font-size: 26px;
+      font-weight: 700;
+      color: $on-surface;
+      line-height: 1.1;
+      letter-spacing: -0.4px;
+    }
+
+    .card-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      width: fit-content;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 14px;
+      line-height: 1;
+
+      span.material-symbols-outlined {
+        font-size: 15px;
+      }
+    }
+
+    .card-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      margin-left: 12px;
+
+      span {
+        font-size: 28px;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        font-variation-settings: 'FILL' 0, 'wght' 400;
+      }
+    }
+
+    .card-bg-icon {
+      position: absolute;
+      bottom: -36px;
+      right: -36px;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 1;
+
+      span {
+        font-size: 216px;
+        display: block;
+        transition: color 0.3s ease, transform 0.3s ease;
+        font-variation-settings: 'FILL' 0, 'wght' 200;
+      }
+    }
+
+    // Variants styling
+    &.summary-card--routes {
+      .card-icon-wrapper {
+        background-color: rgba(182, 188, 255, 0.2);
+        color: #343d8e;
+      }
+      .card-badge {
+        background-color: #e9f7c2;
+        color: #535f36;
+      }
+      .card-bg-icon span {
+        color: rgba(79, 87, 170, 0.04);
+      }
+      &:hover {
+        .card-bg-icon span {
+          color: rgba(79, 87, 170, 0.08);
+        }
+      }
+    }
+
+    &.summary-card--performance {
+      .card-icon-wrapper {
+        background-color: rgba(225, 249, 135, 0.2);
+        color: #556600;
+      }
+      .card-badge {
+        background-color: #e1f987;
+        color: #4f5f00;
+      }
+      .card-bg-icon span {
+        color: rgba(85, 102, 0, 0.04);
+      }
+      &:hover {
+        .card-bg-icon span {
+          color: rgba(85, 102, 0, 0.08);
+        }
+      }
+    }
+
+    &.summary-card--today {
+      .card-icon-wrapper {
+        background-color: rgba(233, 247, 194, 0.2);
+        color: #58643b;
+      }
+      .card-badge {
+        background-color: #e5deff;
+        color: #5f5a85;
+      }
+      .card-bg-icon span {
+        color: rgba(88, 100, 59, 0.04);
+      }
+      &:hover {
+        .card-bg-icon span {
+          color: rgba(88, 100, 59, 0.08);
+        }
+      }
+    }
+  }
+}
+
+// 3. BARRA DE FILTROS
 .filter-bar {
   background-color: $surface-card;
   border: 1px solid $outline-variant;
@@ -157,45 +404,54 @@ $error-bg: #f76a80;
       &::placeholder { color: $on-surface-variant; }
     }
 
-    // Tamaños específicos para mantener el diseño
-    &.flex-1 { flex: 1; min-width: 200px; }
-    &.w-status { width: 190px; }
-  }
+    .filter-tabs {
+      display: flex;
+      background-color: $surface-container-low;
+      padding: 4px;
+      border-radius: 8px;
+      height: 48px;
+      align-items: center;
 
-  .btn-filter-icon {
-    height: 48px;
-    width: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: $surface-container-high;
-    border: none;
-    border-radius: 8px;
-    color: $on-surface;
-    cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s;
-    &:hover { background-color: darken($surface-container-high, 5%); }
-  }
+      .tab-btn {
+        flex: 1;
+        height: 100%;
+        border: none;
+        background: transparent;
+        color: $on-surface-variant;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 0 16px;
+        transition: background-color 0.2s, color 0.2s;
 
-  .spinner {
-    animation: spin 0.8s linear infinite;
-  }
+        &:hover:not(.active) {
+          color: $on-surface;
+        }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+        &.active {
+          background-color: $surface-card;
+          color: $primary-indigo;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+      }
+    }
+
+    &.flex-1 { flex: 1; min-width: 240px; }
+    &.w-status { width: auto; }
   }
 }
 
-// 3. TABLA DE DATOS MAESTRA
+// 4. TABLA DE DATOS MAESTRA
 .table-card {
   background-color: $surface-card;
   border: 1px solid $outline-variant;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 
   .table-responsive {
     overflow-x: auto;
-
     &::-webkit-scrollbar { height: 6px; }
     &::-webkit-scrollbar-thumb { background: $outline-variant; border-radius: 10px; }
   }
@@ -225,16 +481,13 @@ $error-bg: #f76a80;
 
     tr {
       transition: background-color 0.2s;
-      cursor: pointer;
 
-      &:hover {
+      &:hover:not(.skeleton-row) {
         background-color: $primary-container;
-        .btn-actions { color: $primary-indigo; }
       }
       &:last-child td { border-bottom: none; }
     }
 
-    // Estilos de celdas específicas
     .pnr-code {
       font-family: monospace;
       font-weight: 700;
@@ -246,12 +499,22 @@ $error-bg: #f76a80;
       display: flex;
       align-items: center;
       gap: 12px;
+      
+      span {
+        color: $primary-indigo;
+      }
     }
 
     .cell-texts {
       .txt-main { margin: 0; font-size: 14px; font-weight: 500; color: $on-surface; }
       .txt-sub { margin: 2px 0 0; font-size: 12px; color: $on-surface-variant; }
       .fw-bold { font-weight: 600; }
+    }
+
+    .price-cell {
+      font-size: 14px;
+      font-weight: 600;
+      color: $on-surface;
     }
 
     .status-pill {
@@ -269,25 +532,60 @@ $error-bg: #f76a80;
       &.cancelled { background-color: rgba($error, 0.2); color: $error; }
     }
 
-    .btn-actions {
-      background: none;
-      border: none;
+    .capacity-container {
+      width: 100px;
+
+      .capacity-count {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: $on-surface-variant;
+        margin-bottom: 4px;
+      }
+
+      .capacity-bar {
+        height: 6px;
+        width: 100%;
+        background-color: $surface-container-high;
+        border-radius: 3px;
+        overflow: hidden;
+
+        .capacity-progress {
+          height: 100%;
+          background-color: $primary-indigo;
+          border-radius: 3px;
+        }
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px;
       color: $on-surface-variant;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      transition: color 0.2s;
+
+      span {
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+      p { margin: 0; font-size: 14px; font-weight: 500; }
     }
   }
 
-  // 4. PAGINACIÓN
+  // PAGINACIÓN
   .pagination-bar {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 16px;
     align-items: center;
     padding: 16px;
     background-color: $surface-container-low;
     border-top: 1px solid $outline-variant;
+
+    @media (min-width: 640px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
 
     .page-info {
       margin: 0;
@@ -308,6 +606,8 @@ $error-bg: #f76a80;
         padding: 6px;
         cursor: pointer;
         border-radius: 4px;
+        display: flex;
+        align-items: center;
         &:hover:not(:disabled) { background-color: $surface-container-high; }
         &:disabled { opacity: 0.3; cursor: not-allowed; }
       }
@@ -336,109 +636,12 @@ $error-bg: #f76a80;
             font-weight: 700;
           }
         }
-        .page-dots { padding: 0 4px; color: $on-surface-variant; }
       }
     }
   }
 }
 
-// 5. TARJETAS DE MÉTRICAS
-.summary-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-top: 32px;
-
-  @media (min-width: 640px) { grid-template-columns: repeat(2, 1fr); }
-  @media (min-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
-
-  .summary-card {
-    background-color: $surface-container;
-    border: 1px solid rgba($outline-variant, 0.5);
-    border-radius: 8px;
-    padding: 16px;
-
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-
-      h6 {
-        margin: 0;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: $on-surface-variant;
-      }
-
-      .icon-primary { color: $primary-indigo; }
-      .icon-success { color: $success; }
-      .icon-warning { color: $error; } // Usamos rojo para el alert
-    }
-
-    h3 { margin: 0; font-size: 24px; font-weight: 700; color: $on-surface; }
-    
-    p {
-      margin: 4px 0 0 0;
-      font-size: 12px;
-      color: $on-surface-variant;
-      
-      &.trend-up { color: $success; font-weight: 500; }
-      &.trend-down { color: $error; font-weight: 500; }
-    }
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-// ALERTS
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  position: relative;
-  animation: slideDown 0.3s ease-out;
-
-  p { margin: 0; font-size: 14px; font-weight: 500; flex: 1; }
-  
-  .alert-close {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: inherit;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-    &:hover { opacity: 1; }
-  }
-
-  &.alert-success {
-    background-color: $success-bg;
-    color: darken($success, 15%);
-    border: 1px solid rgba($success, 0.2);
-  }
-
-  &.alert-error {
-    background-color: rgba($error, 0.1);
-    color: $error;
-    border: 1px solid rgba($error, 0.2);
-  }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-// CREATE BOOKING MODAL
+// 5. MODAL
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -451,14 +654,14 @@ $error-bg: #f76a80;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeInModal 0.2s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .modal-card {
   background-color: $surface-card;
   border-radius: 12px;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -491,27 +694,37 @@ $error-bg: #f76a80;
     gap: 16px;
   }
 
+  .form-row {
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    
+    @media (min-width: 480px) {
+      flex-direction: row;
+    }
+  }
+
   .form-group {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 6px;
 
     label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       color: $on-surface-variant;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    input, select {
-      height: 44px;
+    input {
+      height: 40px;
       border: 1px solid $outline-variant;
       border-radius: 6px;
       padding: 0 12px;
       font-size: 14px;
       color: $on-surface;
-      background-color: transparent;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
 
@@ -519,13 +732,6 @@ $error-bg: #f76a80;
         border-color: $primary-indigo;
         box-shadow: 0 0 0 3px rgba($primary-indigo, 0.1);
       }
-    }
-
-    .readonly-input {
-      background-color: $surface-container-low;
-      color: $on-surface-variant;
-      border-color: $outline-variant;
-      cursor: not-allowed;
     }
   }
 
@@ -566,7 +772,7 @@ $error-bg: #f76a80;
   }
 }
 
-@keyframes fadeInModal {
+@keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }

@@ -60,4 +60,13 @@ export class AuthService {
     // Aquí en el futuro podríamos añadir lógica para validar si el JWT ha expirado
     return token !== null;
   }
+
+  /**
+   * Resolves a user's email to their numeric database ID
+   */
+  getUserIdByEmail(email: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/users/by-email`, {
+      params: { email }
+    });
+  }
 }

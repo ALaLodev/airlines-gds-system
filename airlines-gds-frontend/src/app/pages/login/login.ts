@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class Login {
+export class Login implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -21,6 +21,12 @@ export class Login {
   showPassword = false;
   isLoading = false;
   errorMessage = '';
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
 
   constructor() {
     this.loginForm = this.fb.group({

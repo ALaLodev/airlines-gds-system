@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { BookingService, BookingMetrics } from '../../core/services/booking.service';
+import { AuthService } from '../../core/services/auth.service';
+import { FlightService, Flight } from '../../core/services/flight.service';
 
 export interface BookingDetail {
   pnr: string;
@@ -24,6 +26,8 @@ export interface BookingDetail {
 })
 export class Bookings implements OnInit {
   private bookingService = inject(BookingService);
+  private authService = inject(AuthService);
+  private flightService = inject(FlightService);
   private cdr = inject(ChangeDetectorRef);
 
   Math = Math;
@@ -38,6 +42,15 @@ export class Bookings implements OnInit {
 
   filterPnr = '';
   filterStatus = '';
+
+  // Modal and creation form states
+  showCreateModal = false;
+  passengerEmail = '';
+  selectedFlightId: number | null = null;
+  availableFlights: Flight[] = [];
+  successMessage = '';
+  errorMessage = '';
+  isSaving = false;
 
   private searchSubject = new Subject<string>();
 
@@ -111,6 +124,86 @@ export class Bookings implements OnInit {
   }
 
   createNewBooking() {
-    console.log('Abriendo modal de creación de reservas...');
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.passengerEmail = '';
+    this.selectedFlightId = null;
+    this.isSaving = false;
+    
+    // Load available flights
+    this.flightService.getFlights().subscribe({
+      next: (flightsList) => {
+        this.availableFlights = flightsList || [];
+        this.showCreateModal = true;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error loading flights for booking:', err);
+        this.errorMessage = 'Failed to load flight schedules. Please ensure flight-service is running.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  closeCreateModal() {
+    this.showCreateModal = false;
+  }
+
+  getSelectedFlightPrice(): number {
+    if (!this.selectedFlightId) return 0;
+    const flight = this.availableFlights.find(f => f.id === Number(this.selectedFlightId));
+    return flight ? flight.price : 0;
+  }
+
+  onSubmitBooking() {
+    if (!this.passengerEmail.trim() || !this.selectedFlightId) {
+      this.errorMessage = 'Please provide passenger email and select a flight.';
+      return;
+    }
+
+    const price = this.getSelectedFlightPrice();
+    if (price <= 0) {
+      this.errorMessage = 'Selected flight price is invalid.';
+      return;
+    }
+
+    this.isSaving = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+
+    // 1. Resolve passenger email to user ID
+    this.authService.getUserIdByEmail(this.passengerEmail.trim()).subscribe({
+      next: (userId) => {
+        // 2. Create booking with resolved user ID
+        const payload = {
+          userId: userId,
+          scheduleId: Number(this.selectedFlightId),
+          totalAmount: price
+        };
+
+        this.bookingService.createBooking(payload).subscribe({
+          next: (res) => {
+            this.successMessage = `Booking created successfully! PNR: ${res.pnr}`;
+            this.showCreateModal = false;
+            this.loadRealData();
+            this.loadMetrics();
+            this.isSaving = false;
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.error('Error creating booking:', err);
+            this.errorMessage = 'Failed to create booking transaction on the backend.';
+            this.isSaving = false;
+            this.cdr.markForCheck();
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error resolving email:', err);
+        this.errorMessage = 'Passenger email is not registered in the system.';
+        this.isSaving = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 }

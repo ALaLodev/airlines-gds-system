@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '../../core/services/admin';
 import { DashboardKpi, PaginatedResponse, AdminBooking, DashboardCharts } from '../../core/models/admin.models';
 import { Chart, registerables } from 'chart.js';
@@ -8,7 +9,7 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

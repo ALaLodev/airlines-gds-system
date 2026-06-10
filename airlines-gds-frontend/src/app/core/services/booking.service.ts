@@ -53,4 +53,11 @@ export class BookingService {
   getBookingMetrics(): Observable<BookingMetrics> {
     return this.http.get<BookingMetrics>(`${this.apiUrl}/admin/dashboard/kpis`);
   }
+
+  /**
+   * Submits a new booking to the booking-service API
+   */
+  createBooking(booking: { userId: number; scheduleId: number; totalAmount: number }): Observable<any> {
+    return this.http.post<any>(this.apiUrl, booking);
+  }
 }
