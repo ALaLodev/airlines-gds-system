@@ -154,11 +154,117 @@ Un modal diseñado a medida con una estética premium oscura y cristalina (Glass
 
 ---
 
-## 4. Flujo de Datos e Integración de Red
+## 4. Feature: Gestión de Inventarios (`inventory-service`)
 
-1. **Petición del Frontend**: El cliente de Angular (`HttpClient`) ejecuta peticiones hacia `http://localhost:8080/api/flights` o `http://localhost:8080/api/agencies`.
-2. **Puerta de Enlace (API Gateway)**: Recibe la solicitud en el puerto `8080`. Evalúa el token JWT en las cabeceras. Si es válido, enruta la solicitud al microservicio destino registrado en el Discovery Server Eureka (`flight-service` o `agency-service`).
-3. **Procesamiento de Negocio**:
-   - `flight-service` consulta la base de datos `flight_db` en el puerto de base de datos correspondiente y retorna la lista de vuelos.
-   - `agency-service` consulta `agency_db` para recuperar las agencias, paginar los resultados según los parámetros, o calcular las agregaciones de los reportes de ranking.
-4. **Respuesta Estructurada**: Se devuelve la información en formato JSON hacia el cliente de Angular, el cual utiliza la estrategia de detección de cambios de Angular para renderizar instantáneamente los datos en pantalla sin parpadeos de carga.
+El módulo de gestión de inventarios se encarga de supervisar, controlar y proyectar la ocupación y disponibilidad de asientos en tiempo real para todos los vuelos activos del GDS, además de responder dinámicamente al flujo transaccional.
+
+### 4.1 Backend: Microservicio `inventory-service`
+
+Este microservicio actúa como custodio reactivo y analítico de la disponibilidad de asientos.
+
+#### A. Modelo de Datos (`Inventory.java`)
+Representa el estado actual del inventario de un vuelo y se mapea a la tabla `inventories` en la base de datos `inventory_db`:
+
+- `id` (Long, PK): Identificador único autogenerado.
+- `scheduleId` (Long): Identificador de programación del vuelo (enlace indirecto con `flight-service`).
+- `flightNumber` (String): Código identificativo del vuelo (ej. *SL-402*, *SL-615*).
+- `origin` (String) / `destination` (String): Códigos IATA de los aeropuertos origen y destino.
+- `aircraftType` (String): Tipo de aeronave asignada (ej. *A350-1000*, *B787-9*, *A380-800*).
+- `departureTime` (LocalDateTime): Fecha y hora de salida del vuelo.
+- `status` (Enum): Estado de venta del inventario (`ON_SALE`, `LIMITED`, `EARLY_BOOKING`, `CLOSED`).
+- `baseFare` (Double): Tarifa base del boleto para el cálculo de valoración del inventario.
+- `availableSeats` (Integer): Total de asientos físicos libres (calculado como capacidad total de cabinas menos reservas).
+- **Desglose de Cabinas** (Capacidad Total vs Reservados):
+  - *Clase Turista (Economy)*: `economyTotal` / `economyBooked` (Integer).
+  - *Clase Turista Premium (Premium)*: `premiumTotal` / `premiumBooked` (Integer).
+  - *Clase Business (Business)*: `businessTotal` / `businessBooked` (Integer).
+  - *Primera Clase (First)*: `firstTotal` / `firstBooked` (Integer, admite nulos para aeronaves sin First).
+
+#### B. Endpoints de la API (`InventoryController.java`)
+Expuestos a través de la pasarela de enrutamiento en `/api/inventories/**`:
+
+| Método | Endpoint | Descripción | Seguridad |
+|---|---|---|---|
+| `GET` | `/api/inventories` | Lista paginada y filtrable de inventarios (búsqueda + filtros de estado). | Requiere JWT válido. |
+| `GET` | `/api/inventories/{id}` | Obtiene el inventario de un registro específico. | Requiere JWT válido. |
+| `GET` | `/api/inventories/metrics` | Calcula los KPI agregados del sistema. | Requiere JWT válido. |
+| `GET` | `/api/inventories/alerts` | Retorna advertencias de sobreventa u ocupación crítica. | Requiere JWT válido. |
+| `PUT` | `/api/inventories/{id}` | Permite a los analistas de ingresos modificar manualmente las reservas o forzar cierres de venta. | Requiere JWT válido. |
+
+#### C. Lógica Analítica de Negocio (`InventoryService.java`)
+- **Cálculo de Métricas**:
+  - *Active Flights*: Número de vuelos cuyo estado es distinto de `CLOSED`.
+  - *Avg. Load Factor*: Promedio del ratio porcentual de asientos ocupados sobre el total en todos los vuelos activos.
+  - *Unsold Inventory Value*: Suma total del valor comercial de los asientos no vendidos (`capacidad_total - reservados` multiplicado por la `baseFare` de cada vuelo).
+- **Generación de Alertas**:
+  - *CRITICAL (Sobreventa)*: Se dispara si alguna de las cabinas de pasajeros supera su capacidad total (`Booked > Total`).
+  - *WARNING (Alta Ocupación)*: Se dispara si la ocupación global del vuelo supera el `90%`, recomendando un incremento dinámico de precios (Dynamic Pricing Surge).
+  - *INFO (Sistema Operativo)*: Si no hay novedades, reporta estado normal del inventario.
+
+#### D. Integración Asíncrona / Reactiva (`InventoryConsumer.java`)
+El servicio implementa un consumidor de Kafka para escuchar de forma reactiva el canal `payment-events` (grupo `inventory-group`). 
+* Al recibir un evento exitoso de pago (`SUCCESS`), decrementa de forma atómica en `1` la columna `availableSeats` en base al `scheduleId` del vuelo.
+* Si el pago falla, el evento es ignorado en cuanto a inventario y se mantiene la disponibilidad.
+
+#### E. Inicialización y Sembrado de Datos (`DataLoader.java`)
+Al iniciar el servicio, si la tabla `inventories` se encuentra vacía, se siembran **6 vuelos reales de largo radio** con desgloses detallados de ocupación y tipos de aeronaves (A350, B787, B777, A380) para posibilitar análisis inmediatos de rendimiento.
+
+---
+
+### 4.2 Frontend: Panel de Control de Inventarios (`InventoryComponent`)
+
+Módulo avanzado desarrollado en `src/app/pages/inventory/` bajo una estructura Bento Grid:
+
+#### A. Bento Grid de Indicadores (Metricas)
+* **Vuelos Activos**: Visualiza los vuelos actualmente a la venta con tendencia frente al año anterior (+12% vs LY).
+* **Factor de Ocupación Medio**: Promedio de ocupación de la flota con formato decimal exacto.
+* **Valor No Vendido**: Valorización en dólares del inventario disponible en tiempo real.
+* **System Status**: Estado general con un micro-indicador animado (pulso de motor de ingresos activo).
+
+#### B. Live Inventory Grid (Tabla Interactiva)
+* Muestra las rutas origen-destino y tipo de aeronave.
+* **Barras de Progreso Dinámicas**: Representan visualmente la ocupación de Economy, Premium, Business y First de forma independiente. Los colores de las barras y porcentajes varían automáticamente: verde (`disponibilidad alta`), naranja (`ocupación media >50%`), rojo (`ocupación crítica >80%`).
+* **Etiquetas de Estado**: Muestran el estado del vuelo formateado a píldoras de color según su enumeración.
+* Paginación integrada en servidor y filtros combinados de búsqueda y estados de comercialización.
+
+#### C. Predicción de Yield (Yield Prediction Chart)
+* Gráfico de barras interactivo de 12 columnas que proyecta la ocupación estimada para las próximas 24 horas.
+* Cuenta con tooltips detallados en hover que indican las franjas de hora pico y recomendaciones automáticas de subida de tarifas (ej. *+15% Surge*).
+* Estilos CSS optimizados mediante flexbox (`height: 100%` y `justify-content: flex-end` en los contenedores de las columnas) para garantizar que las barras se rendericen con alturas proporcionales exactas a partir de la línea base.
+
+---
+
+## 5. Flujo de Datos, Seguridad e Integración de Red
+
+El monorepo procesa la información mediante un flujo estructurado de extremo a extremo:
+
+1. **Petición del Frontend (Angular)**: El cliente de Angular (`HttpClient`) ejecuta peticiones hacia el API Gateway `http://localhost:8080/api/...`. Las cabeceras HTTP incluyen el token JWT del usuario gracias al `authInterceptor`.
+2. **Puerta de Enlace (API Gateway)**: Recibe la solicitud en el puerto `8080`. Evalúa el token JWT en las cabeceras. Si es válido y no ha expirado, extrae los roles y enruta la solicitud al microservicio correspondiente registrado en Eureka Server en base al path:
+   - `/api/auth/**` → `AUTH-SERVICE` (puerto `8081`)
+   - `/api/flights/**` → `FLIGHT-SERVICE` (puerto `8082`)
+   - `/api/bookings/**` → `BOOKING-SERVICE` (puerto `8083`)
+   - `/api/payments/**` → `PAYMENT-SERVICE` (puerto `8084`)
+   - `/api/inventories/**` → `INVENTORY-SERVICE` (puerto `8085`)
+   - `/api/agencies/**` → `AGENCY-SERVICE` (puerto `8086`)
+3. **Capa de Seguridad en los Microservicios**: Cada microservicio destino valida el JWT transmitido a nivel de filtros internos de Spring Security para autorizar la transacción a nivel de método o endpoint.
+4. **Flujo Transaccional Asíncrono (Kafka)**:
+   ```mermaid
+   sequenceDiagram
+       participant B as Booking-Service
+       participant K as Kafka (Topic: booking-events)
+       participant P as Payment-Service
+       participant KE as Kafka (Topic: payment-events)
+       participant I as Inventory-Service
+       
+       B->>K: Publica "Booking Created" (PNR, Vuelo)
+       K->>P: Consume evento de reserva
+       Note over P: Procesa cobro con tarjeta
+       P->>KE: Publica "Payment Result" (SUCCESS / FAILURE)
+       KE->>I: Consume evento de pago
+       Note over I: Si es SUCCESS, resta asiento de disponible
+       KE->>B: Consume evento de pago
+       Note over B: Confirma reserva o cancela
+   ```
+5. **Base de Datos Dedicada**: Cada microservicio interactúa únicamente con su base de datos MySQL asignada en Docker Compose, garantizando el aislamiento de dominio y evitando acoplamientos por bases de datos compartidas.
+6. **Respuesta**: Los datos procesados se serializan en JSON y se devuelven al frontend, donde la reactividad de Angular actualiza el DOM inmediatamente con transiciones suaves diseñadas según Stitch.
+
