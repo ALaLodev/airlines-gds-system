@@ -1,0 +1,295 @@
+<div class="inventory">
+  <!-- Page Header -->
+  <div class="inventory__header">
+    <div class="inventory__header-left">
+      <nav class="inventory__breadcrumb">
+        <span>Admin</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span class="inventory__breadcrumb-active">Inventory</span>
+      </nav>
+      <h2 class="inventory__title">Inventory Management</h2>
+      <p class="inventory__subtitle">Monitor real-time seat availability across all active routes and fare classes. Adjust yield controls and manage inventory over-allocation.</p>
+    </div>
+    <div class="inventory__header-actions">
+      <button class="inventory__btn inventory__btn--outline" (click)="toggleFilters()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M6 12h12M8 18h8"/></svg>
+        Filters
+      </button>
+      <button class="inventory__btn inventory__btn--primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Manual Override
+      </button>
+    </div>
+  </div>
+
+  <!-- Metrics Bento Grid -->
+  <div class="inventory__metrics">
+    <div class="inventory__metric-card">
+      <div class="inventory__metric-top">
+        <div class="inventory__metric-icon inventory__metric-icon--primary">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1l5.6 3.4-3.8 3.8-2.3-.8c-.4-.1-.8 0-1 .3l-.2.3c-.2.3-.1.7.2.9l3.5 2.4 2.4 3.5c.2.3.6.4.9.2l.3-.2c.3-.2.4-.6.3-1l-.8-2.3 3.8-3.8 3.4 5.6c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.7.5-1.1z"/></svg>
+        </div>
+        <span class="inventory__metric-badge inventory__metric-badge--success">+{{ metrics.activeFlightsChange }}% vs LY</span>
+      </div>
+      <p class="inventory__metric-label">Active Flights</p>
+      <h3 class="inventory__metric-value">{{ metrics.activeFlights | number }}</h3>
+      <div class="inventory__metric-watermark">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.06"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1l5.6 3.4-3.8 3.8-2.3-.8c-.4-.1-.8 0-1 .3l-.2.3c-.2.3-.1.7.2.9l3.5 2.4 2.4 3.5c.2.3.6.4.9.2l.3-.2c.3-.2.4-.6.3-1l-.8-2.3 3.8-3.8 3.4 5.6c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.7.5-1.1z"/></svg>
+      </div>
+    </div>
+
+    <div class="inventory__metric-card">
+      <div class="inventory__metric-top">
+        <div class="inventory__metric-icon inventory__metric-icon--secondary">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M9 16h6"/></svg>
+        </div>
+        <span class="inventory__metric-badge inventory__metric-badge--neutral">Global Avg.</span>
+      </div>
+      <p class="inventory__metric-label">Avg. Load Factor</p>
+      <h3 class="inventory__metric-value">{{ metrics.avgLoadFactor | number:'1.1-1' }}%</h3>
+      <div class="inventory__metric-watermark">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.06"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+    </div>
+
+    <div class="inventory__metric-card">
+      <div class="inventory__metric-top">
+        <div class="inventory__metric-icon inventory__metric-icon--tertiary">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        </div>
+        <span class="inventory__metric-badge inventory__metric-badge--neutral">Real-time</span>
+      </div>
+      <p class="inventory__metric-label">Unsold Inventory</p>
+      <h3 class="inventory__metric-value">${{ metrics.unsoldInventoryValue | number:'1.0-0' }}</h3>
+      <div class="inventory__metric-watermark">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.06"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+    </div>
+
+    <div class="inventory__metric-card inventory__metric-card--status">
+      <p class="inventory__metric-label">System Status</p>
+      <h3 class="inventory__metric-value">Optimized</h3>
+      <div class="inventory__metric-engine">
+        <span class="inventory__pulse"></span>
+        <span class="inventory__engine-text">Yield Engine Active</span>
+      </div>
+      <div class="inventory__metric-watermark">
+        <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.06"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar (collapsible) -->
+  <div class="inventory__filters" *ngIf="showFilters">
+    <div class="inventory__search-wrapper">
+      <svg class="inventory__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input class="inventory__search-input" type="text" placeholder="Search flights, routes, or aircraft..." [(ngModel)]="searchQuery" (input)="onSearchChange()" />
+    </div>
+    <div class="inventory__filter-group">
+      <select class="inventory__select" [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+        <option value="">All Statuses</option>
+        <option value="ON_SALE">On Sale</option>
+        <option value="LIMITED">Limited</option>
+        <option value="EARLY_BOOKING">Early Booking</option>
+        <option value="CLOSED">Closed</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="inventory__loading" *ngIf="isLoading">
+    <div class="inventory__spinner"></div>
+    <p>Loading inventory data...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="inventory__error" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Live Inventory Grid -->
+  <div class="inventory__grid" *ngIf="!isLoading && !errorMessage">
+    <div class="inventory__grid-header">
+      <h4 class="inventory__grid-title">Live Inventory Grid</h4>
+      <div class="inventory__legend">
+        <div class="inventory__legend-item">
+          <span class="inventory__legend-dot inventory__legend-dot--high"></span>
+          <span>High Availability</span>
+        </div>
+        <div class="inventory__legend-item">
+          <span class="inventory__legend-dot inventory__legend-dot--filling"></span>
+          <span>Filling</span>
+        </div>
+        <div class="inventory__legend-item">
+          <span class="inventory__legend-dot inventory__legend-dot--critical"></span>
+          <span>Critical</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="inventory__table-wrapper">
+      <table class="inventory__table">
+        <thead>
+          <tr>
+            <th>Flight / Route</th>
+            <th>Economy (Y)</th>
+            <th>Premium (W)</th>
+            <th>Business (J)</th>
+            <th>First (F)</th>
+            <th>Status</th>
+            <th class="inventory__th-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of inventories" class="inventory__row">
+            <td class="inventory__cell-flight">
+              <div class="inventory__flight-info">
+                <div class="inventory__flight-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.4-.1.9.3 1.1l5.6 3.4-3.8 3.8-2.3-.8c-.4-.1-.8 0-1 .3l-.2.3c-.2.3-.1.7.2.9l3.5 2.4 2.4 3.5c.2.3.6.4.9.2l.3-.2c.3-.2.4-.6.3-1l-.8-2.3 3.8-3.8 3.4 5.6c.2.4.7.5 1.1.3l.5-.3c.4-.2.6-.7.5-1.1z"/></svg>
+                </div>
+                <div>
+                  <p class="inventory__flight-number">{{ item.flightNumber }} • {{ item.origin }} → {{ item.destination }}</p>
+                  <p class="inventory__flight-detail">{{ item.aircraftType }} | {{ formatTime(item.departureTime) }} Dep.</p>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="inventory__fare-cell">
+                <div class="inventory__fare-numbers">
+                  <span class="inventory__fare-booked">{{ item.economyBooked }}/{{ item.economyTotal }}</span>
+                  <span class="inventory__fare-pct" [class]="getFareColorClass(item.economyBooked, item.economyTotal)">{{ getPercentage(item.economyBooked, item.economyTotal) }}%</span>
+                </div>
+                <div class="inventory__fare-bar">
+                  <div class="inventory__fare-bar-fill" [class]="getFareBarClass(item.economyBooked, item.economyTotal)" [style.width.%]="getPercentage(item.economyBooked, item.economyTotal)"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="inventory__fare-cell">
+                <div class="inventory__fare-numbers">
+                  <span class="inventory__fare-booked">{{ item.premiumBooked }}/{{ item.premiumTotal }}</span>
+                  <span class="inventory__fare-pct" [class]="getFareColorClass(item.premiumBooked, item.premiumTotal)">{{ getPercentage(item.premiumBooked, item.premiumTotal) }}%</span>
+                </div>
+                <div class="inventory__fare-bar">
+                  <div class="inventory__fare-bar-fill" [class]="getFareBarClass(item.premiumBooked, item.premiumTotal)" [style.width.%]="getPercentage(item.premiumBooked, item.premiumTotal)"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="inventory__fare-cell">
+                <div class="inventory__fare-numbers">
+                  <span class="inventory__fare-booked">{{ item.businessBooked }}/{{ item.businessTotal }}</span>
+                  <span class="inventory__fare-pct" [class]="getFareColorClass(item.businessBooked, item.businessTotal)">{{ getPercentage(item.businessBooked, item.businessTotal) }}%</span>
+                </div>
+                <div class="inventory__fare-bar">
+                  <div class="inventory__fare-bar-fill" [class]="getFareBarClass(item.businessBooked, item.businessTotal)" [style.width.%]="getPercentage(item.businessBooked, item.businessTotal)"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="inventory__fare-cell" *ngIf="item.firstTotal !== null; else noFirst">
+                <div class="inventory__fare-numbers">
+                  <span class="inventory__fare-booked">{{ item.firstBooked }}/{{ item.firstTotal }}</span>
+                  <span class="inventory__fare-pct" [class]="getFareColorClass(item.firstBooked!, item.firstTotal!)">{{ getPercentage(item.firstBooked!, item.firstTotal!) }}%</span>
+                </div>
+                <div class="inventory__fare-bar">
+                  <div class="inventory__fare-bar-fill" [class]="getFareBarClass(item.firstBooked!, item.firstTotal!)" [style.width.%]="getPercentage(item.firstBooked!, item.firstTotal!)"></div>
+                </div>
+              </div>
+              <ng-template #noFirst>
+                <div class="inventory__fare-cell inventory__fare-cell--na">
+                  <span class="inventory__fare-na">N/A</span>
+                  <div class="inventory__fare-bar inventory__fare-bar--disabled"></div>
+                </div>
+              </ng-template>
+            </td>
+            <td>
+              <span class="inventory__status-pill" [class]="'inventory__status-pill--' + item.status.toLowerCase().replace('_', '-')">{{ formatStatus(item.status) }}</span>
+            </td>
+            <td class="inventory__cell-actions">
+              <button class="inventory__action-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="inventory__pagination" *ngIf="totalPages > 1">
+      <div class="inventory__pagination-info">
+        Showing Page {{ currentPage + 1 }} of {{ totalPages }}
+      </div>
+      <div class="inventory__pagination-actions">
+        <button class="inventory__page-btn" [disabled]="currentPage === 0" (click)="prevPage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          Previous
+        </button>
+        <div class="inventory__page-numbers">
+          <button *ngFor="let page of getPageNumbers()" 
+                  class="inventory__page-number" 
+                  [class.inventory__page-number--active]="page === currentPage"
+                  (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+        </div>
+        <button class="inventory__page-btn" [disabled]="isLastPage" (click)="nextPage()">
+          Next
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Section: Yield Prediction & Alerts -->
+  <div class="inventory__bottom" *ngIf="!isLoading && !errorMessage">
+    <!-- Yield Prediction Chart -->
+    <div class="inventory__yield-panel">
+      <h4 class="inventory__panel-title">Yield Prediction — Next 24 Hours</h4>
+      <p class="inventory__panel-subtitle">Simulated load projection and recommended dynamic pricing thresholds based on historical load factors.</p>
+      
+      <div class="inventory__chart-container">
+        <div class="inventory__chart-y-axis">
+          <span>100%</span>
+          <span>75%</span>
+          <span>50%</span>
+          <span>25%</span>
+          <span>0%</span>
+        </div>
+        <div class="inventory__chart-bars">
+          <div *ngFor="let bar of yieldBars" class="inventory__chart-bar-wrapper">
+            <div class="inventory__chart-bar" 
+                 [style.height.%]="bar.height" 
+                 [class.inventory__chart-bar--peak]="bar.isPeak">
+              <div class="inventory__chart-tooltip">
+                <span class="inventory__tooltip-title">{{ bar.label }}</span>
+                <span class="inventory__tooltip-value">Est. Load: {{ bar.height }}%</span>
+                <span class="inventory__tooltip-action" *ngIf="bar.isPeak">Recommended: +15% Surge</span>
+              </div>
+            </div>
+            <span class="inventory__chart-label">{{ bar.label.split('-')[0] }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Alerts Panel -->
+    <div class="inventory__alerts-panel">
+      <h4 class="inventory__panel-title inventory__panel-title--light">Inventory Alerts</h4>
+      <p class="inventory__panel-subtitle inventory__panel-subtitle--light">System notifications regarding overbooking and surge recommendations.</p>
+      
+      <div class="inventory__alerts-list">
+        <div *ngFor="let alert of alerts" class="inventory__alert-card" [class]="'inventory__alert-card--' + alert.type.toLowerCase()">
+          <div class="inventory__alert-icon-wrapper">
+            <span class="material-icons inventory__alert-icon">{{ alert.icon }}</span>
+          </div>
+          <div class="inventory__alert-content">
+            <h5 class="inventory__alert-title">{{ alert.title }}</h5>
+            <p class="inventory__alert-msg">{{ alert.message }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
