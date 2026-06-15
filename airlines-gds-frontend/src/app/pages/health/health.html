@@ -1,0 +1,239 @@
+<div class="health-container">
+    <!-- Loading State -->
+    <div *ngIf="loading && !healthData" class="loading-state">
+        <div class="loading-state__spinner"></div>
+    </div>
+  
+    <!-- Error State -->
+    <div *ngIf="error" class="error-state">
+        {{ error }}
+    </div>
+  
+    <!-- Dashboard Content -->
+    <div *ngIf="healthData" class="dashboard-content">
+        <!-- Header Section -->
+        <div class="dashboard-content__header-section">
+            <div class="dashboard-content__title-area">
+                <h1>System Health</h1>
+                <p>Real-time infrastructure monitoring for SkyLink Global Distribution System.</p>
+            </div>
+            <div class="dashboard-content__actions-area">
+                <button (click)="manualRefresh()" class="dashboard-content__btn dashboard-content__btn--secondary">
+                    <span class="material-symbols-outlined" [class.dashboard-content__btn-spinning]="loading">refresh</span>
+                    <span>Refresh Data</span>
+                </button>
+                <button (click)="exportReport()" class="dashboard-content__btn dashboard-content__btn--primary">
+                    <span class="material-symbols-outlined">download</span>
+                    <span>Export Status Report</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-content__health-grid">
+            <!-- Left Column: Services Status & Charts -->
+            <div class="dashboard-content__left-column">
+                
+                <!-- Services Status -->
+                <div class="dashboard-content__health-card dashboard-content__services-card">
+                    <div class="card-header">
+                        <h2>Services Status</h2>
+                        <span class="dashboard-content__status-badge dashboard-content__status-badge--healthy">
+                            <span class="dot pulse"></span> ALL SYSTEMS OPERATIONAL
+                        </span>
+                    </div>
+                    <div class="dashboard-content__services-grid">
+                        <!-- Booking Engine -->
+                        <div class="dashboard-content__service-item" [ngClass]="getServiceStatus('booking-service')?.status === 'UP' ? 'dashboard-content__service-item--up' : 'dashboard-content__service-item--down'">
+                            <div class="dashboard-content__service-icon-row">
+                                <div class="dashboard-content__icon-box dashboard-content__icon-box--primary">
+                                    <span class="material-symbols-outlined">rocket_launch</span>
+                                </div>
+                                <span class="material-symbols-outlined dashboard-content__status-icon pulse" [ngClass]="getServiceStatus('booking-service')?.status === 'UP' ? 'dashboard-content__status-icon--up' : 'dashboard-content__status-icon--down'">
+                                    {{ getServiceStatus('booking-service')?.status === 'UP' ? 'check_circle' : 'warning' }}
+                                </span>
+                            </div>
+                            <p class="dashboard-content__service-name">Booking Engine</p>
+                            <p class="dashboard-content__service-uptime">{{ getServiceStatus('booking-service')?.uptime || 0 }}% 
+                                <span class="dashboard-content__service-msg">{{ getServiceStatus('booking-service')?.message }}</span>
+                            </p>
+                        </div>
+                        
+                        <!-- Payment Gateway -->
+                        <div class="dashboard-content__service-item" [ngClass]="getServiceStatus('payment-service')?.status === 'UP' ? 'dashboard-content__service-item--up' : 'dashboard-content__service-item--down'">
+                            <div class="dashboard-content__service-icon-row">
+                                <div class="dashboard-content__icon-box dashboard-content__icon-box--primary">
+                                    <span class="material-symbols-outlined">payments</span>
+                                </div>
+                                <span class="material-symbols-outlined dashboard-content__status-icon pulse" [ngClass]="getServiceStatus('payment-service')?.status === 'UP' ? 'dashboard-content__status-icon--up' : 'dashboard-content__status-icon--down'">
+                                    {{ getServiceStatus('payment-service')?.status === 'UP' ? 'check_circle' : 'warning' }}
+                                </span>
+                            </div>
+                            <p class="dashboard-content__service-name">Payment Gateway</p>
+                            <p class="dashboard-content__service-uptime">{{ getServiceStatus('payment-service')?.uptime || 0 }}% 
+                                <span class="dashboard-content__service-msg">{{ getServiceStatus('payment-service')?.message }}</span>
+                            </p>
+                        </div>
+                        
+                        <!-- Inventory API -->
+                        <div class="dashboard-content__service-item" [ngClass]="getServiceStatus('inventory-service')?.status === 'UP' ? 'dashboard-content__service-item--up' : 'dashboard-content__service-item--down'">
+                            <div class="dashboard-content__service-icon-row">
+                                <div class="dashboard-content__icon-box dashboard-content__icon-box--primary">
+                                    <span class="material-symbols-outlined">inventory_2</span>
+                                </div>
+                                <span class="material-symbols-outlined dashboard-content__status-icon pulse" [ngClass]="getServiceStatus('inventory-service')?.status === 'UP' ? 'dashboard-content__status-icon--up' : 'dashboard-content__status-icon--down'">
+                                    {{ getServiceStatus('inventory-service')?.status === 'UP' ? 'check_circle' : 'warning' }}
+                                </span>
+                            </div>
+                            <p class="dashboard-content__service-name">Inventory API</p>
+                            <p class="dashboard-content__service-uptime">{{ getServiceStatus('inventory-service')?.uptime || 0 }}% 
+                                <span class="dashboard-content__service-msg">{{ getServiceStatus('inventory-service')?.message }}</span>
+                            </p>
+                        </div>
+                        
+                        <!-- PNR Store -->
+                        <div class="dashboard-content__service-item" [ngClass]="getServiceStatus('pnr-store')?.status === 'UP' ? 'dashboard-content__service-item--up' : (getServiceStatus('pnr-store')?.status === 'WARNING' ? 'dashboard-content__service-item--warning' : 'dashboard-content__service-item--down')">
+                            <div class="dashboard-content__service-icon-row">
+                                <div class="dashboard-content__icon-box dashboard-content__icon-box--primary">
+                                    <span class="material-symbols-outlined">storage</span>
+                                </div>
+                                <span class="material-symbols-outlined dashboard-content__status-icon pulse" [ngClass]="getServiceStatus('pnr-store')?.status === 'UP' ? 'dashboard-content__status-icon--up' : (getServiceStatus('pnr-store')?.status === 'WARNING' ? 'dashboard-content__status-icon--warning' : 'dashboard-content__status-icon--down')">
+                                    {{ getServiceStatus('pnr-store')?.status === 'UP' ? 'check_circle' : 'warning' }}
+                                </span>
+                            </div>
+                            <p class="dashboard-content__service-name">PNR Store</p>
+                            <p class="dashboard-content__service-uptime">{{ getServiceStatus('pnr-store')?.uptime || 0 }}% 
+                                <span class="dashboard-content__service-msg">{{ getServiceStatus('pnr-store')?.message }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content__charts-row">
+                    <!-- API Latency Chart -->
+                    <div class="dashboard-content__health-card dashboard-content__chart-card">
+                        <div class="dashboard-content__chart-header">
+                            <div>
+                                <h3>API Latency (ms)</h3>
+                                <p>Global average across 12 regions</p>
+                            </div>
+                            <span class="dashboard-content__chart-value dashboard-content__chart-value--secondary">{{ healthData.globalLatencyMs }}ms</span>
+                        </div>
+                        <div class="dashboard-content__chart-body">
+                            <svg class="line-chart" preserveAspectRatio="none" viewBox="0 0 100 40" style="width: 100%; height: 100%;">
+                                <path d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,15 T100,22" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+                                <path d="M0,35 Q10,30 20,32 T40,20 T60,25 T80,15 T100,22 L100,40 L0,40 Z" fill="url(#latencyGradient)" opacity="0.1"></path>
+                                <defs>
+                                    <linearGradient id="latencyGradient" x1="0" x2="0" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="currentColor"></stop>
+                                        <stop offset="100%" stop-color="transparent"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Request Volume Chart -->
+                    <div class="dashboard-content__health-card dashboard-content__chart-card">
+                        <div class="dashboard-content__chart-header">
+                            <div>
+                                <h3>Request Volume</h3>
+                                <p>Requests per minute (RPM)</p>
+                            </div>
+                            <span class="dashboard-content__chart-value dashboard-content__chart-value--primary">{{ healthData.requestVolumeRpm }}</span>
+                        </div>
+                        <div class="dashboard-content__chart-body dashboard-content__chart-body--bar-chart">
+                            <div class="bar bar--dim" style="height: 40%"></div>
+                            <div class="bar bar--dim" style="height: 60%"></div>
+                            <div class="bar bar--dim" style="height: 45%"></div>
+                            <div class="bar bar--dim" style="height: 75%"></div>
+                            <div class="bar bar--dim" style="height: 90%"></div>
+                            <div class="bar bar--active" style="height: 95%"></div>
+                            <div class="bar bar--dim" style="height: 80%"></div>
+                            <div class="bar bar--dim" style="height: 65%"></div>
+                            <div class="bar bar--dim" style="height: 55%"></div>
+                            <div class="bar bar--dim" style="height: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Regional Map/Status -->
+            <div class="dashboard-content__right-column">
+                <div class="dashboard-content__health-card dashboard-content__infra-card">
+                    <div class="dashboard-content__infra-header">
+                        <h3>Infrastructure Load</h3>
+                        <p>Real-time node utilization mapping.</p>
+                    </div>
+                    
+                    <div class="dashboard-content__map-placeholder">
+                        <div class="dashboard-content__map-overlay">
+                            <div class="dashboard-content__active-nodes-badge">
+                                <div class="dot dot--tertiary pulse"></div>
+                                <span>Active Nodes: {{ healthData.infrastructureLoad.activeNodes }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-content__progress-list">
+                        <div class="dashboard-content__progress-item">
+                            <div class="progress-labels">
+                                <span>CPU Usage</span>
+                                <strong>{{ healthData.infrastructureLoad.cpuUsage | number:'1.0-2' }}%</strong>
+                            </div>
+                            <div class="dashboard-content__progress-track">
+                                <div class="progress-fill dashboard-content__progress-fill--primary" [style.width.%]="healthData.infrastructureLoad.cpuUsage"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-content__progress-item">
+                            <div class="progress-labels">
+                                <span>Memory Usage</span>
+                                <strong>{{ healthData.infrastructureLoad.memoryUsage | number:'1.0-2' }}%</strong>
+                            </div>
+                            <div class="dashboard-content__progress-track">
+                                <div class="progress-fill dashboard-content__progress-fill--primary-dim" [style.width.%]="healthData.infrastructureLoad.memoryUsage > 100 ? 100 : (healthData.infrastructureLoad.memoryUsage < 0 ? 0 : healthData.infrastructureLoad.memoryUsage)"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-content__progress-item">
+                            <div class="progress-labels">
+                                <span>Disk I/O</span>
+                                <strong>{{ healthData.infrastructureLoad.diskIo | number:'1.0-2' }}%</strong>
+                            </div>
+                            <div class="dashboard-content__progress-track">
+                                <div class="progress-fill dashboard-content__progress-fill--secondary" [style.width.%]="healthData.infrastructureLoad.diskIo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: System Logs / Alerts -->
+            <div class="dashboard-content__logs-section">
+                <div class="dashboard-content__logs-header">
+                    <div class="dashboard-content__title-wrapper">
+                        <span class="material-symbols-outlined">list_alt</span>
+                        <h3>Live System Logs</h3>
+                    </div>
+                    <div class="dashboard-content__logs-summary">
+                        <span><span class="dot dot--secondary"></span> 0 Critical</span>
+                        <span><span class="dot dot--error"></span> 2 Alerts</span>
+                        <span><span class="dot dot--warning"></span> 14 Warnings</span>
+                    </div>
+                </div>
+                <div class="dashboard-content__logs-content">
+                    <div *ngFor="let log of healthData.logs" class="dashboard-content__log-entry" [ngClass]="'dashboard-content__log-entry--' + log.level.toLowerCase()">
+                        <span class="log-time">[{{ log.timestamp }}]</span>
+                        <span class="log-level">{{ log.level }}</span>
+                        <span class="log-msg">{{ log.message }}</span>
+                    </div>
+                </div>
+                <div class="dashboard-content__logs-footer" (click)="manualRefresh()">
+                    <span>PAUSE LOG STREAMING</span>
+                    <span class="material-symbols-outlined">pause</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

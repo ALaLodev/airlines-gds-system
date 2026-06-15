@@ -10,5 +10,8 @@ public record AdminBookingDTO(
         String destination,
         BigDecimal totalAmount,
         String status,
-        LocalDateTime bookingDate
+        LocalDateTime bookingDate,
+        String seatNumber,
+        String cabinClass
 ) {}
+

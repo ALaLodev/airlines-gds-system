@@ -1,7 +1,5 @@
 .inventory {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   font-family: 'Inter', sans-serif;
   color: #1e293b;
 
@@ -37,17 +35,17 @@
   }
 
   &__title {
-    font-size: 28px;
-    font-weight: 700;
-    color: #0f172a;
-    letter-spacing: -0.02em;
-    margin: 0 0 6px 0;
+    font-size: 32px;
+    font-weight: 600;
+    color: #322d56;
+    letter-spacing: -0.5px;
+    margin: 0;
   }
 
   &__subtitle {
     font-size: 14px;
-    color: #64748b;
-    margin: 0;
+    color: #5f5a86;
+    margin: 4px 0 0 0;
     max-width: 720px;
     line-height: 1.5;
   }

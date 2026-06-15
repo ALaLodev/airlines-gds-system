@@ -1,13 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
-/* Reset global B2B */
+/* Centralized Theme Tokens & Design System */
+:root {
+  // Brand Canvas & Surfaces
+  --bg-canvas: #fcf8ff;
+  --surface-card: #ffffff;
+  --surface-container-low: #f6f1ff;
+  --surface-container: #f0ebff;
+  --surface-container-high: #ebe5ff;
+
+  // Typography & Contrast
+  --on-surface: #322d56;
+  --on-surface-variant: #5f5a86;
+
+  // Borders & Outlines
+  --outline-variant: #b3acde;
+
+  // Brand Primary Identity
+  --primary-indigo: #4f57aa;
+  --primary-dim: #424b9d;
+  --on-primary: #fbf8ff;
+
+  // Operational Semantic States
+  --success: #6c7f1b;
+  --success-bg: #e9f7c2;
+  --error: #ac3149;
+  --error-bg: rgba(172, 49, 73, 0.1);
+
+  // Unified Page Title Typography
+  --font-family-base: 'Inter', sans-serif;
+  --page-title-size: 32px;
+  --page-title-weight: 600;
+  --page-title-letter-spacing: -0.5px;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  background-color: #fcf8ff; /* Tu token de fondo canvas */
-  overflow-x: hidden; /* Corta de raíz cualquier scroll horizontal */
+  background-color: var(--bg-canvas); /* Usando el token centralizado */
+  overflow-x: hidden;
 }
 
 *, *::before, *::after {

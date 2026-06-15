@@ -19,6 +19,35 @@ export interface BookingMetrics {
   successRate: number;
 }
 
+/** Payload enviado al backend al reservar un asiento */
+export interface SeatReservationRequest {
+  userId: number;
+  scheduleId: number;
+  totalAmount: number;
+  seatNumber: string;
+  cabinClass: string;
+}
+
+/** Respuesta del backend al crear una reserva */
+export interface SeatReservationResponse {
+  id: number;
+  pnr: string;
+  userId: number;
+  scheduleId: number;
+  totalAmount: number;
+  seatNumber: string;
+  cabinClass: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  createdAt: string;
+}
+
+/** Asiento ya reservado devuelto por GET /api/bookings/flight/{id}/seats */
+export interface BookedSeat {
+  seatNumber: string;
+  cabinClass: string;
+  status: 'PENDING' | 'COMPLETED';
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,4 +89,20 @@ export class BookingService {
   createBooking(booking: { userId: number; scheduleId: number; totalAmount: number }): Observable<any> {
     return this.http.post<any>(this.apiUrl, booking);
   }
-}
+
+  /**
+   * Reserva un asiento específico en un vuelo.
+   * Envía seatNumber y cabinClass junto con los datos de reserva standard.
+   */
+  reserveSeat(request: SeatReservationRequest): Observable<SeatReservationResponse> {
+    return this.http.post<SeatReservationResponse>(this.apiUrl, request);
+  }
+
+  /**
+   * Obtiene los asientos ya reservados (PENDING o COMPLETED) para un vuelo dado.
+   * Usado para pintar el mapa interactivo antes de que el agente seleccione un asiento.
+   */
+  getBookedSeats(flightId: number): Observable<BookedSeat[]> {
+    return this.http.get<BookedSeat[]>(`${this.apiUrl}/flight/${flightId}/seats`);
+  }
+}

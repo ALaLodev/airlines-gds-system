@@ -1,0 +1,360 @@
+<div class="seatmap-overlay" (click)="onOverlayClick($event)">
+  <div class="seatmap-sheet">
+
+    <!-- ── Modal Header ──────────────────────────────────────────────────────── -->
+    <div class="sheet-header">
+      <div class="header-flight-info">
+        <div class="flight-badge">
+          <span class="material-symbols-outlined">flight</span>
+          <span class="flight-number">{{ flight.flightNumber }}</span>
+        </div>
+        <div class="route-display">
+          <span class="iata">{{ flight.origin }}</span>
+          <svg class="route-arrow" viewBox="0 0 60 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0" y1="8" x2="48" y2="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 2"/>
+            <polygon points="44,4 60,8 44,12" fill="currentColor"/>
+            <circle cx="4" cy="8" r="3" fill="currentColor"/>
+          </svg>
+          <span class="iata">{{ flight.destination }}</span>
+        </div>
+        <div class="flight-meta">
+          <span>{{ flight.departureTime | date:'MMM d, yyyy' }}</span>
+          <span class="meta-sep">•</span>
+          <span>{{ flight.departureTime | date:'HH:mm' }}</span>
+          <span class="meta-sep">•</span>
+          <span>Boeing 787-9</span>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill">
+          <span class="stat-value">{{ occupancyPct }}%</span>
+          <span class="stat-label">Occupied</span>
+        </div>
+        <div class="stat-pill stat-pill--avail">
+          <span class="stat-value">{{ totalSeats - occupiedSeats }}</span>
+          <span class="stat-label">Available</span>
+        </div>
+        <div class="stat-pill stat-pill--total">
+          <span class="stat-value">{{ totalSeats }}</span>
+          <span class="stat-label">Total Seats</span>
+        </div>
+      </div>
+
+      <button class="close-btn" (click)="onClose()" aria-label="Close seat map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── Progress Bar ───────────────────────────────────────────────────────── -->
+    <div class="occupancy-bar-wrapper">
+      <div class="occupancy-bar" [style.width.%]="occupancyPct"></div>
+    </div>
+
+    <!-- ── Main Body ─────────────────────────────────────────────────────────── -->
+    <div class="sheet-body">
+
+      <!-- ─ Left: Aircraft Seat Map ─────────────────────────────────────────── -->
+      <div class="map-panel">
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item"><span class="legend-swatch legend-swatch--available"></span>Available</div>
+          <div class="legend-item"><span class="legend-swatch legend-swatch--occupied"></span>Occupied</div>
+          <div class="legend-item"><span class="legend-swatch legend-swatch--selected"></span>Selected</div>
+          <div class="legend-sep"></div>
+          <div class="legend-item"><span class="legend-dot legend-dot--first"></span>First</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--business"></span>Business</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--premium"></span>Premium</div>
+          <div class="legend-item"><span class="legend-dot legend-dot--economy"></span>Economy</div>
+        </div>
+
+        <!-- Loading state -->
+        @if (isLoadingSeats) {
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading seat availability…</p>
+          </div>
+        }
+
+        <!-- Aircraft Visualization -->
+        @if (!isLoadingSeats) {
+          <div class="aircraft-scroll-area">
+            <div class="aircraft-body">
+
+              <!-- Nose / Cockpit -->
+              <div class="aircraft-nose">
+                <svg viewBox="0 0 220 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- fuselage shape -->
+                  <path d="M110 4 C60 4 10 36 4 68 L4 110 L216 110 L216 68 C210 36 160 4 110 4Z"
+                        fill="var(--surface-card)" stroke="var(--outline-variant)" stroke-width="2"/>
+                  <!-- cockpit windows -->
+                  <ellipse cx="82" cy="62" rx="18" ry="11" fill="var(--surface-container)" stroke="var(--outline-variant)" stroke-width="1.5"/>
+                  <ellipse cx="138" cy="62" rx="18" ry="11" fill="var(--surface-container)" stroke="var(--outline-variant)" stroke-width="1.5"/>
+                  <ellipse cx="110" cy="46" rx="10" ry="8" fill="var(--surface-container)" stroke="var(--outline-variant)" stroke-width="1.5"/>
+                  <!-- center line -->
+                  <line x1="110" y1="4" x2="110" y2="110" stroke="var(--outline-variant)" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+                </svg>
+                <div class="cockpit-label">
+                  <span class="material-symbols-outlined">airplanemode_active</span>
+                </div>
+              </div>
+
+              <!-- Wings visual -->
+              <div class="wings-row">
+                <div class="wing wing--left">
+                  <svg viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M80 0 L0 30 L0 40 L80 18Z" fill="var(--surface-container-high)" stroke="var(--outline-variant)" stroke-width="1"/>
+                  </svg>
+                </div>
+                <div class="wing-center-label">WINGS</div>
+                <div class="wing wing--right">
+                  <svg viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0 L80 30 L80 40 L0 18Z" fill="var(--surface-container-high)" stroke="var(--outline-variant)" stroke-width="1"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Cabin Sections -->
+              @for (cabin of cabins; track cabin.name) {
+                <div class="cabin-section cabin-section--{{ cabin.name.toLowerCase().replace('_', '-') }}">
+                  <div class="cabin-header">
+                    <span class="cabin-dot cabin-dot--{{ cabin.name.toLowerCase().replace('_', '-') }}"></span>
+                    <span class="cabin-name">{{ cabin.label }}</span>
+                    <span class="cabin-price">from ${{ getCabinPrice(cabin.name) }}</span>
+                  </div>
+
+                  <div class="cabin-rows">
+                    @for (row of cabin.rows; track row[0].row) {
+                      <div class="seat-row">
+                        <span class="row-number">{{ row[0].row }}</span>
+                        <div class="seat-groups">
+                          @for (group of getSeatGroups(cabin, row); track $index) {
+                            <div class="seat-group">
+                              @for (seat of group; track seat.id) {
+                                <button
+                                  class="seat-btn seat-btn--{{ seat.cabin.toLowerCase().replace('_', '-') }}"
+                                  [class.seat-btn--occupied]="seat.status === 'occupied'"
+                                  [class.seat-btn--selected]="seat.status === 'selected'"
+                                  [class.seat-btn--available]="seat.status === 'available'"
+                                  [class.seat-btn--window]="seat.hasWindow"
+                                  [class.seat-btn--legroom]="seat.hasExtraLegroom"
+                                  [disabled]="seat.status === 'occupied'"
+                                  [attr.aria-label]="'Seat ' + seat.id + ' ' + seat.status"
+                                  (click)="selectSeat(seat)"
+                                  [title]="seat.id + (seat.hasExtraLegroom ? ' • Extra Legroom' : '') + (seat.hasWindow ? ' • Window' : '')"
+                                >
+                                  {{ seat.id }}
+                                  @if (seat.status === 'occupied') {
+                                    <span class="seat-occupied-icon">✕</span>
+                                  }
+                                  @if (seat.hasExtraLegroom && seat.status !== 'occupied') {
+                                    <span class="seat-legroom-indicator"></span>
+                                  }
+                                </button>
+                              }
+                            </div>
+                            @if ($index < getSeatGroups(cabin, row).length - 1) {
+                              <div class="aisle-gap"></div>
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  @if (cabin.isExitAfter) {
+                    <div class="exit-row-divider">
+                      <div class="exit-line"></div>
+                      <span class="exit-label">
+                        <span class="material-symbols-outlined">emergency_exit</span>
+                        EXIT ROW
+                      </span>
+                      <div class="exit-line"></div>
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Tail -->
+              <div class="aircraft-tail">
+                <svg viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 0 L216 0 L216 30 C210 58 160 60 110 60 C60 60 10 58 4 30Z"
+                        fill="var(--surface-card)" stroke="var(--outline-variant)" stroke-width="2"/>
+                  <line x1="110" y1="0" x2="110" y2="60" stroke="var(--outline-variant)" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+                </svg>
+              </div>
+
+            </div><!-- /aircraft-body -->
+          </div><!-- /aircraft-scroll-area -->
+        }
+      </div><!-- /map-panel -->
+
+      <!-- ─ Right: Seat Details Panel ──────────────────────────────────────── -->
+      <div class="detail-panel">
+
+        <!-- Seat Details Card -->
+        <div class="detail-card" [class.detail-card--active]="selectedSeat !== null">
+          @if (!selectedSeat && !reservationResult) {
+            <div class="detail-empty">
+              <span class="material-symbols-outlined">airline_seat_recline_extra</span>
+              <p>Click on an available seat to view details and reserve</p>
+            </div>
+          }
+
+          @if (selectedSeat) {
+            <div class="detail-content">
+              <div class="detail-seat-header">
+                <div>
+                  <p class="detail-label">Selected Seat</p>
+                  <p class="detail-seat-id">{{ selectedSeat.id }}</p>
+                </div>
+                <span class="cabin-badge cabin-badge--{{ selectedSeat.cabin.toLowerCase().replace('_', '-') }}">
+                  {{ getCabinLabel(selectedSeat.cabin) }}
+                </span>
+              </div>
+
+              <div class="detail-attrs">
+                <p class="detail-label">Seat Attributes</p>
+                <div class="attrs-list">
+                  @if (selectedSeat.hasWindow) {
+                    <span class="attr-chip">
+                      <span class="material-symbols-outlined">panorama</span> Window
+                    </span>
+                  }
+                  @if (selectedSeat.hasExtraLegroom) {
+                    <span class="attr-chip attr-chip--legroom">
+                      <span class="material-symbols-outlined">airline_seat_legroom_extra</span> Extra Legroom
+                    </span>
+                  }
+                  <span class="attr-chip">
+                    <span class="material-symbols-outlined">wifi</span> Wi-Fi
+                  </span>
+                  <span class="attr-chip">
+                    <span class="material-symbols-outlined">power</span> Power Outlet
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-price">
+                <p class="detail-label">Ticket Price</p>
+                <p class="price-amount">${{ getCabinPrice(selectedSeat.cabin) | number:'1.2-2' }}</p>
+                <p class="price-sub">incl. taxes & fees</p>
+              </div>
+
+              @if (reservationError) {
+                <div class="error-alert">
+                  <span class="material-symbols-outlined">error</span>
+                  {{ reservationError }}
+                </div>
+              }
+
+              <button
+                class="reserve-btn"
+                [class.reserve-btn--loading]="isReserving"
+                [disabled]="isReserving"
+                (click)="reserveSeat()"
+              >
+                @if (isReserving) {
+                  <span class="btn-spinner"></span>
+                  Reserving…
+                } @else {
+                  <span class="material-symbols-outlined">check_circle</span>
+                  Reserve Seat {{ selectedSeat.id }}
+                }
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Confirmation toast -->
+        @if (showConfirmation && reservationResult) {
+          <div class="confirmation-card">
+            <div class="confirmation-icon">
+              <span class="material-symbols-outlined">celebration</span>
+            </div>
+            <h3>Seat Reserved!</h3>
+            <p class="pnr-display">PNR: <strong>{{ reservationResult.pnr }}</strong></p>
+            <div class="confirmation-details">
+              <div class="conf-row">
+                <span>Flight</span>
+                <strong>{{ flight.flightNumber }}</strong>
+              </div>
+              <div class="conf-row">
+                <span>Seat</span>
+                <strong>{{ reservationResult.seatNumber }}</strong>
+              </div>
+              <div class="conf-row">
+                <span>Class</span>
+                <strong>{{ getCabinLabel(reservationResult.cabinClass) }}</strong>
+              </div>
+              <div class="conf-row">
+                <span>Amount</span>
+                <strong>${{ reservationResult.totalAmount | number:'1.2-2' }}</strong>
+              </div>
+              <div class="conf-row">
+                <span>Status</span>
+                <span class="status-badge status-badge--pending">{{ reservationResult.status }}</span>
+              </div>
+            </div>
+            <p class="confirmation-note">
+              <span class="material-symbols-outlined">info</span>
+              Payment processing via Kafka saga. Status will update to COMPLETED automatically.
+            </p>
+            <button class="dismiss-btn" (click)="dismissConfirmation()">
+              Select Another Seat
+            </button>
+          </div>
+        }
+
+        <!-- Quick Stats Card -->
+        <div class="stats-card">
+          <h4 class="stats-title">
+            <span class="material-symbols-outlined">analytics</span>
+            Flight Stats
+          </h4>
+          <div class="stats-grid">
+            <div class="stat-row">
+              <span class="stat-dot cabin-dot--first"></span>
+              <span class="stat-cabin-name">First Class</span>
+              <span class="stat-cabin-count">12 seats</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-dot cabin-dot--business"></span>
+              <span class="stat-cabin-name">Business</span>
+              <span class="stat-cabin-count">16 seats</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-dot cabin-dot--premium-economy"></span>
+              <span class="stat-cabin-name">Premium Eco.</span>
+              <span class="stat-cabin-count">54 seats</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-dot cabin-dot--economy"></span>
+              <span class="stat-cabin-name">Economy</span>
+              <span class="stat-cabin-count">180 seats</span>
+            </div>
+          </div>
+          <div class="stats-divider"></div>
+          <div class="stats-totals">
+            <div class="total-row">
+              <span>Total Capacity</span>
+              <strong>{{ totalSeats }}</strong>
+            </div>
+            <div class="total-row">
+              <span>Available Now</span>
+              <strong class="text-success">{{ totalSeats - occupiedSeats }}</strong>
+            </div>
+            <div class="total-row">
+              <span>Revenue Potential</span>
+              <strong>${{ flight.price | number:'1.0-0' }}/seat</strong>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /detail-panel -->
+    </div><!-- /sheet-body -->
+  </div><!-- /seatmap-sheet -->
+</div><!-- /seatmap-overlay -->

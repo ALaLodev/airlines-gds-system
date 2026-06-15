@@ -3,8 +3,8 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-titles">
-
       <h1>Flight Schedules</h1>
+      <p class="page-subtitle">Schedule, update, and monitor commercial routes across clúster nodes.</p>
     </div>
     <div class="header-actions">
       <button class="btn-secondary" (click)="loadFlights()">
@@ -151,6 +151,7 @@
             <th>Price</th>
             <th>Status</th>
             <th>Available Seats</th>
+            <th>Seat Map</th>
           </tr>
         </thead>
         <tbody>
@@ -176,7 +177,7 @@
             </tr>
           } @else {
             @for (flight of paginatedFlights; track flight.id || flight.flightNumber) {
-              <tr>
+              <tr class="clickable-row" (click)="openSeatMap(flight)">
                 <td class="pnr-code">{{ flight.flightNumber }}</td>
                 <td>
                   <div class="cell-passenger">
@@ -217,6 +218,12 @@
                       <div class="capacity-progress" [style.width.%]="getCapacityPercentage(flight)"></div>
                     </div>
                   </div>
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <button class="btn-seat-map" (click)="openSeatMap(flight)" title="Open interactive seat map">
+                    <span class="material-symbols-outlined">airline_seat_recline_extra</span>
+                    Seat Map
+                  </button>
                 </td>
               </tr>
             }
@@ -359,6 +366,14 @@
         </form>
       </div>
     </div>
+  }
+
+  <!-- Flight Seat Map Modal -->
+  @if (selectedFlight) {
+    <app-flight-seat-map-modal
+      [flight]="selectedFlight"
+      (close)="closeSeatMap()"
+    />
   }
 
 </div>

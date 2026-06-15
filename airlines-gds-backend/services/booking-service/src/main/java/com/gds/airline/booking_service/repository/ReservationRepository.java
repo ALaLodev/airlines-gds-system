@@ -37,4 +37,10 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     // Agrupa por fecha de creación y saca los últimos 7 días con actividad
     @Query(value = "SELECT DATE(created_at) as date, COUNT(*) as count FROM reservations GROUP BY DATE(created_at) ORDER BY date DESC LIMIT 7", nativeQuery = true)
     List<Object[]> countReservationsByDate();
+
+    // 3. Obtener todas las reservas para un vuelo concreto (para el mapa de asientos)
+    // Solo devuelve reservas activas (PENDING o COMPLETED), excluyendo CANCELLED y FAILED
+    @Query("SELECT r FROM Reservation r WHERE r.scheduleId = :scheduleId AND r.status IN (com.gds.airline.booking_service.model.PaymentStatus.PENDING, com.gds.airline.booking_service.model.PaymentStatus.COMPLETED)")
+    List<Reservation> findActiveReservationsByScheduleId(@org.springframework.data.repository.query.Param("scheduleId") Long scheduleId);
 }
+

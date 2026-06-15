@@ -35,6 +35,14 @@ public class Reservation {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    // Asiento reservado en el avión (ej: "14A", "2B"). Nullable para reservas legacy.
+    @Column(nullable = true, length = 4)
+    private String seatNumber;
+
+    // Cabina del asiento (ej: "FIRST", "BUSINESS", "PREMIUM_ECONOMY", "ECONOMY")
+    @Column(nullable = true, length = 20)
+    private String cabinClass;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;

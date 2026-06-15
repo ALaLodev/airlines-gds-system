@@ -1,0 +1,345 @@
+@import '../../pages/dashboard/dashboard.scss';
+
+$bg-canvas: #fcf8ff;
+$surface-card: #ffffff;
+$surface-container: #f5f3fa;
+$on-surface: #322d56;
+$on-surface-variant: #5f5a86;
+$outline-variant: #b3acde;
+$primary-indigo: #4f57aa;
+$primary-dim: rgba(79, 87, 170, 0.3);
+$secondary-olive: #707c51;
+$tertiary-lime: #6c7f1b;
+$error: #ba1a1a;
+$error-container: #ffdad6;
+$on-error-container: #410002;
+$success: #16a34a;
+$warning: #eab308;
+
+.health-container {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+}
+
+.loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 256px;
+
+    &__spinner {
+        border: 4px solid rgba($primary-indigo, 0.1);
+        border-top-color: $primary-indigo;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        animation: spin 1s linear infinite;
+    }
+}
+
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+.error-state {
+    background-color: $error-container;
+    color: $on-error-container;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.dashboard-content {
+    &__header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 32px;
+    }
+
+    &__title-area {
+        h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 600;
+            color: $on-surface;
+            letter-spacing: -0.5px;
+        }
+        p {
+            margin: 4px 0 0 0;
+            font-size: 16px;
+            color: $on-surface-variant;
+        }
+    }
+
+    &__actions-area {
+        display: flex;
+        gap: 12px;
+    }
+
+    &__btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        border: none;
+        transition: all 0.2s;
+        font-family: inherit;
+
+        &--secondary {
+            background-color: $surface-container;
+            color: $on-surface;
+            border: 1px solid $outline-variant;
+            &:hover { background-color: rgba($on-surface, 0.05); }
+        }
+
+        &--primary {
+            background-color: $primary-indigo;
+            color: white;
+            &:hover { box-shadow: 0 4px 12px rgba($primary-indigo, 0.3); }
+        }
+    }
+
+    &__btn-spinning {
+        animation: spin 1s linear infinite;
+    }
+
+    &__health-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        @media (max-width: 1024px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__health-card {
+        background-color: $surface-card;
+        border: 1px solid $outline-variant;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    &__left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    &__services-card {
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            h2 { margin: 0; font-size: 20px; font-weight: 700; color: $on-surface; }
+        }
+    }
+
+    &__status-badge {
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        &--healthy { background-color: rgba($secondary-olive, 0.1); color: $secondary-olive; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: $secondary-olive; }
+    }
+
+    &__services-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    &__service-item {
+        background-color: $bg-canvas;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid rgba($outline-variant, 0.2);
+        transition: all 0.2s;
+        &--up { border-color: rgba($outline-variant, 0.5); &:hover { border-color: rgba($primary-indigo, 0.4); } }
+        &--down { border-color: rgba($error, 0.3); &:hover { border-color: $error; } }
+        &--warning { border-color: rgba($warning, 0.3); &:hover { border-color: $warning; } }
+    }
+
+    &__service-icon-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    &__icon-box {
+        padding: 8px; border-radius: 6px; display: flex;
+        &--primary { background-color: rgba($primary-indigo, 0.1); color: $primary-indigo; }
+    }
+
+    &__status-icon {
+        &--up { color: $secondary-olive; }
+        &--down { color: $error; }
+        &--warning { color: $warning; }
+    }
+
+    &__service-name {
+        margin: 0; font-size: 11px; font-weight: 700; color: $on-surface-variant; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    &__service-uptime {
+        margin: 4px 0 0 0; font-size: 24px; font-weight: 700; color: $on-surface;
+    }
+
+    &__service-msg { font-size: 12px; font-weight: 400; color: $on-surface-variant; }
+
+    &__charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        @media (max-width: 768px) { grid-template-columns: 1fr; }
+    }
+
+    &__chart-card {
+        display: flex; flex-direction: column;
+    }
+
+    &__chart-header {
+        display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
+        h3 { margin: 0; font-size: 16px; font-weight: 700; color: $on-surface; }
+        p { margin: 2px 0 0 0; font-size: 12px; color: $on-surface-variant; }
+    }
+
+    &__chart-value { 
+        font-size: 24px; font-weight: 700; 
+        &--secondary { color: $secondary-olive; } 
+        &--primary { color: $primary-indigo; } 
+    }
+
+    &__chart-body {
+        flex: 1; min-height: 120px; display: flex; align-items: flex-end; gap: 4px;
+        &--bar-chart {
+            .bar { flex: 1; border-radius: 4px 4px 0 0; }
+            .bar--dim { background-color: $primary-dim; }
+            .bar--active { background-color: $primary-indigo; }
+        }
+    }
+
+    &__right-column {
+        display: flex; flex-direction: column; gap: 24px;
+    }
+
+    &__infra-card {
+        flex: 1;
+    }
+
+    &__infra-header {
+        margin-bottom: 24px;
+        h3 { margin: 0 0 4px 0; font-size: 20px; font-weight: 700; color: $on-surface; }
+        p { margin: 0; font-size: 14px; color: $on-surface-variant; }
+    }
+
+    &__map-placeholder {
+        aspect-ratio: 16 / 9;
+        background-color: $bg-canvas;
+        border: 1px solid $outline-variant;
+        border-radius: 8px;
+        position: relative;
+        margin-bottom: 24px;
+    }
+
+    &__map-overlay {
+        position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+        background: linear-gradient(to top, rgba($bg-canvas, 0.8), transparent);
+        display: flex; align-items: flex-end; padding: 16px;
+    }
+
+    &__active-nodes-badge {
+        display: flex; align-items: center; gap: 8px;
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot--tertiary { background-color: $tertiary-lime; }
+        span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: $on-surface; }
+    }
+
+    &__progress-list {
+        display: flex; flex-direction: column; gap: 16px;
+    }
+
+    &__progress-item {
+        .progress-labels {
+            display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px;
+            span { color: $on-surface-variant; }
+            strong { font-weight: 700; color: $on-surface; }
+        }
+    }
+
+    &__progress-track {
+        height: 8px; background-color: $surface-container; border-radius: 999px; overflow: hidden;
+    }
+
+    &__progress-fill { 
+        height: 100%; transition: width 0.5s ease; 
+        &--primary { background-color: $primary-indigo; }
+        &--primary-dim { background-color: rgba($primary-indigo, 0.6); }
+        &--secondary { background-color: $secondary-olive; }
+    }
+
+    &__logs-section {
+        grid-column: 1 / -1;
+        background-color: #1a1625;
+        color: #eaddff;
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex; flex-direction: column;
+    }
+
+    &__logs-header {
+        padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    &__title-wrapper {
+        display: flex; align-items: center; gap: 12px;
+        h3 { margin: 0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    }
+
+    &__logs-summary {
+        display: flex; gap: 16px; font-size: 12px; font-weight: 500;
+        span { display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot--secondary { background-color: $secondary-olive; }
+        .dot--error { background-color: $error; }
+        .dot--warning { background-color: #d0bcff; }
+    }
+
+    &__logs-content {
+        height: 256px; overflow-y: auto; padding: 24px; display: flex; flex-direction: column-reverse; gap: 8px; font-family: monospace; font-size: 12px;
+    }
+
+    &__log-entry {
+        display: flex; gap: 16px; opacity: 0.7; transition: opacity 0.2s;
+        &:hover { opacity: 1; }
+        &--info .log-level { color: #d0bcff; }
+        &--alert { color: #ffdad6; }
+        &--warn { color: #eab308; }
+        .log-time { color: #d0bcff; flex-shrink: 0; }
+        .log-level { flex-shrink: 0; font-weight: 700; width: 50px; }
+    }
+
+    &__logs-footer {
+        background-color: rgba($primary-indigo, 0.4); padding: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer;
+        transition: background-color 0.2s;
+        &:hover { background-color: $primary-indigo; }
+        span { font-size: 12px; font-weight: 700; color: white; }
+    }
+}
+
+.pulse { animation: pulse-soft 2s infinite ease-in-out; }
+@keyframes pulse-soft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }

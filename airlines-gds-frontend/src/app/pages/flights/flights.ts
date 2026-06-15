@@ -2,11 +2,12 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FlightService, Flight } from '../../core/services/flight.service';
+import { FlightSeatMapModal } from './flight-seat-map-modal/flight-seat-map-modal';
 
 @Component({
   selector: 'app-flights',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FlightSeatMapModal],
   templateUrl: './flights.html',
   styleUrl: './flights.scss'
 })
@@ -52,6 +53,9 @@ export class Flights implements OnInit {
   // Error/Success alerts
   successMessage = '';
   errorMessage = '';
+
+  // Seat map modal
+  selectedFlight: Flight | null = null;
 
   ngOnInit(): void {
     this.loadFlights();
@@ -232,10 +236,20 @@ export class Flights implements OnInit {
   }
 
   getCapacityPercentage(flight: Flight): number {
-    // Assuming a standard max capacity of 180 seats if not specified
-    const total = 180;
+    // Assuming a standard max capacity of 262 seats for Boeing 787-9
+    const total = 262;
     const booked = total - flight.availableSeats;
     const pct = Math.round((booked / total) * 100);
     return Math.max(0, Math.min(pct, 100));
+  }
+
+  openSeatMap(flight: Flight): void {
+    this.selectedFlight = flight;
+  }
+
+  closeSeatMap(): void {
+    this.selectedFlight = null;
+    // Refresh flight list to reflect any new bookings
+    this.loadFlights();
   }
 }

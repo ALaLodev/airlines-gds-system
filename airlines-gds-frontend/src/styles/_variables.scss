@@ -1,0 +1,42 @@
+// ==========================================================================
+// Colores de Lienzo, Superficies y Capas (Material Design 3 Scale)
+// ==========================================================================
+$bg-canvas: var(--bg-canvas);
+$surface-card: var(--surface-card);
+$surface-container-low: var(--surface-container-low);
+$surface-container: var(--surface-container);
+$surface-container-high: var(--surface-container-high);
+
+// ==========================================================================
+// Tipografía, Textos y Contraste
+// ==========================================================================
+$on-surface: var(--on-surface);
+$on-surface-variant: var(--on-surface-variant);
+
+// ==========================================================================
+// Bordes, Líneas de Guía y Separadores
+// ==========================================================================
+$outline-variant: var(--outline-variant);
+
+// ==========================================================================
+// Identidad de Marca (Brand Primary Colors)
+// ==========================================================================
+$primary-indigo: var(--primary-indigo);
+$primary-dim: var(--primary-dim);
+$on-primary: var(--on-primary);
+
+// ==========================================================================
+// Estados Semánticos Operacionales (Alertas y Confirmaciones)
+// ==========================================================================
+$success: var(--success);
+$success-bg: var(--success-bg);
+$error: var(--error);
+$error-bg: var(--error-bg);
+
+// ==========================================================================
+// Estilos de Título Centralizados
+// ==========================================================================
+$font-family-base: var(--font-family-base);
+$page-title-size: var(--page-title-size);
+$page-title-weight: var(--page-title-weight);
+$page-title-letter-spacing: var(--page-title-letter-spacing);

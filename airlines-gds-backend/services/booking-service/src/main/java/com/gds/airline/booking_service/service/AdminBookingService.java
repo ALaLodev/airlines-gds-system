@@ -75,7 +75,9 @@ public class AdminBookingService {
                     destination,
                     reservation.getTotalAmount(),
                     reservation.getStatus().name(),
-                    reservation.getCreatedAt()
+                    reservation.getCreatedAt(),
+                    reservation.getSeatNumber(),
+                    reservation.getCabinClass()
             );
         }).collect(Collectors.toList());
 

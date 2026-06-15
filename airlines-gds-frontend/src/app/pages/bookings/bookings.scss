@@ -84,7 +84,13 @@ $error-bg: #f76a80;
       .current { color: $primary-indigo; }
     }
 
-    h1 { margin: 0; font-size: 32px; font-weight: 700; color: $on-surface; }
+    h1 { margin: 0; font-size: 32px; font-weight: 600; color: $on-surface; letter-spacing: -0.5px; }
+    .page-subtitle {
+      margin: 4px 0 0 0;
+      font-size: 14px;
+      color: $on-surface-variant;
+      font-weight: 400;
+    }
   }
 
   .btn-primary {
