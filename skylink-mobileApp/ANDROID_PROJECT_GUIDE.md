@@ -1,135 +1,135 @@
-# SkyLink GDS — Passenger Android Application Guide
+# Guía del Proyecto Mobile — Aplicación Android de Pasajeros de SkyLink GDS
 
-This document contains the official architecture, feature list, dependency overview, and technical decisions implemented in the native Kotlin Passenger Android application for **SkyLink GDS**.
-
----
-
-## 1. Project Overview
-
-The SkyLink Android application is a native passenger client designed to search flights, manage bookings, check in, and view travel itineraries. It interfaces directly with the central Spring Boot API Gateway at port `8080` and complements the Angular Admin Dashboard.
+Este documento contiene la guía oficial de arquitectura, características, dependencias y decisiones técnicas implementadas en la aplicación móvil nativa en Kotlin para pasajeros de **SkyLink GDS**.
 
 ---
 
-## 2. Technical Stack & Key Constraints
+## 1. Descripción General del Proyecto
 
-* **Core Language:** Kotlin 2.2.10
-* **UI Toolkit:** Jetpack Compose (100% Declarative UI, no XML layouts/views)
-* **Architecture:** MVVM (Model-View-ViewModel) + Clean Architecture
-* **Asynchronous Flow:** Kotlin Coroutines & StateFlow (no deprecated LiveData)
-* **Dependency Injection:** Dagger Hilt
-* **Networking:** Retrofit 2 + OkHttp 4 + Moshi (JSON serialization)
-* **Secure Storage:** Jetpack Security (EncryptedSharedPreferences)
-* **Image Loading:** Coil (Coroutines Image Loader)
+La aplicación Android de SkyLink es un cliente de pasajeros nativo diseñado para buscar vuelos, gestionar reservas, realizar el check-in y visualizar itinerarios de viaje. Se conecta directamente con el API Gateway de Spring Boot en el puerto `8080` y complementa el Panel de Administración de Angular.
 
 ---
 
-## 3. Project Architecture
+## 2. Stack Tecnológico y Restricciones Clave
 
-The application is built using a strict layer-decoupling model to isolate business logic from UI frameworks and framework-level data sources.
+* **Lenguaje Principal:** Kotlin 2.2.10
+* **Toolkit de UI:** Jetpack Compose (UI 100% Declarativa, sin layouts XML heredados)
+* **Arquitectura:** MVVM (Model-View-ViewModel) + Clean Architecture
+* **Flujo Asíncrono:** Kotlin Coroutines & StateFlow (sin el obsoleto LiveData)
+* **Inyección de Dependencias:** Dagger Hilt
+* **Redes:** Retrofit 2 + OkHttp 4 + Moshi (serialización JSON)
+* **Almacenamiento Seguro:** Jetpack Security (EncryptedSharedPreferences)
+* **Carga de Imágenes:** Coil (Cargador de Imágenes optimizado con Corrutinas)
+
+---
+
+## 3. Arquitectura del Proyecto
+
+La aplicación está construida utilizando un modelo de desacoplamiento estricto por capas para aislar la lógica de negocio de los frameworks de UI y de las fuentes de datos externas.
 
 ```mermaid
 graph TD
-    UI[UI Presentation Layer: Jetpack Compose] --> VM[ViewModel: Emits States via StateFlow]
-    VM --> UC[Domain Layer: UseCases / Business Logic]
-    UC --> Repo[Domain Layer: Repository Interfaces]
-    RepoImpls[Data Layer: Repository Implementations] -. Implements .-> Repo
-    RepoImpls --> Net[Data Layer: Retrofit API Services]
-    RepoImpls --> DB[Data Layer: EncryptedSharedPreferences]
+    UI[Capa de UI y Presentación: Jetpack Compose] --> VM[ViewModel: Emite estados mediante StateFlow]
+    VM --> UC[Capa de Dominio: UseCases / Lógica de Negocio]
+    UC --> Repo[Capa de Dominio: Interfaces de Repositorios]
+    RepoImpls[Capa de Datos: Implementación de Repositorios] -. Implementa .-> Repo
+    RepoImpls --> Net[Capa de Datos: Servicios API de Retrofit]
+    RepoImpls --> DB[Capa de Datos: EncryptedSharedPreferences]
 ```
 
-### Layer Breakdown
+### Desglose de Capas
 
-#### A. Presentation Layer (`ui/` and `features/.../presentation/`)
-- Contains `@Composable` screens (`LoginScreen.kt`, `HomeScreen.kt`) that react to UI state.
-- ViewModels (`AuthViewModel.kt`) inherit Hilt lifecycle components via `@HiltViewModel`. They fetch inputs, launch coroutine jobs, and modify private `MutableStateFlow`s, exposing immutable `StateFlow`s to Compose via `collectAsState()`.
+#### A. Capa de Presentación (UI) (`ui/` y `features/.../presentation/`)
+- Contiene pantallas `@Composable` (`LoginScreen.kt`, `HomeScreen.kt`) que reaccionan al estado de la interfaz de usuario.
+- Los ViewModels (`AuthViewModel.kt`) heredan los componentes de ciclo de vida de Hilt mediante la anotación `@HiltViewModel`. Reciben entradas de usuario, lanzan corrutinas y actualizan un `MutableStateFlow` privado, exponiendo un `StateFlow` inmutable a Compose a través de `collectAsState()`.
 
-#### B. Domain Layer (`features/.../domain/`)
-- Houses UseCases (`LoginUseCase.kt`) containing pure business logic rules.
-- Contains repository interfaces (`AuthRepository.kt`) defining contracts for data fetching. This layer has zero dependencies on external frameworks (Retrofit, Android components, etc.).
+#### B. Capa de Dominio (`features/.../domain/`)
+- Aloja los casos de uso (`LoginUseCase.kt`) que contienen las reglas puras de la lógica de negocio móvil.
+- Contiene las interfaces de los repositorios (`AuthRepository.kt`) que definen los contratos para la obtención de datos. Esta capa tiene cero dependencias de frameworks externos (Retrofit, librerías de Android, etc.).
 
-#### C. Data Layer (`features/.../data/`)
-- Implements repository interfaces (`AuthRepositoryImpl.kt`).
-- Handles Retrofit service APIs (`AuthApi.kt`), data models/entities (`LoginRequest.kt`, `LoginResponse.kt`), and database/cache transactions.
+#### C. Capa de Datos (`features/.../data/`)
+- Implementa las interfaces de los repositorios (`AuthRepositoryImpl.kt`).
+- Gestiona las llamadas de red mediante Retrofit (`AuthApi.kt`), los modelos/entidades de serialización (`LoginRequest.kt`, `LoginResponse.kt`), y el acceso al almacenamiento local (SharedPreferences).
 
 ---
 
-## 4. Key Configurations & Integrations
+## 4. Configuraciones Clave e Integraciones
 
-### 1. Emulator Base URL Routing (`10.0.2.2`)
-To communicate with the Spring Boot API Gateway running on the development host computer, the app uses the Retrofit configuration:
+### 1. URL Base para el Emulador (`10.0.2.2`)
+Para comunicarse con el API Gateway de Spring Boot que se ejecuta en el host de desarrollo, la aplicación utiliza la configuración de Retrofit:
 - **Base URL:** `http://10.0.2.2:8080/`
-- *Note:* `127.0.0.1` or `localhost` is forbidden in code as the Android emulator maps these addresses to its own internal loopback interface, failing to connect to the backend gateway.
+- *Nota:* Queda prohibido usar `127.0.0.1` o `localhost` en el código, ya que el emulador de Android mapea estas direcciones a su propia interfaz de red loopback interna, fallando en conectar con la máquina host.
 
-### 2. Network Token Injection (`AuthInterceptor`)
-A custom OkHttp `Interceptor` (`AuthInterceptor.kt`) intercepts all outgoing HTTP requests to the backend:
-- Dynamically checks if a JWT token is stored.
-- Injects `Authorization: Bearer <TOKEN>` in the headers.
-- Automatically skips authentication headers for authentication routes (e.g. `/api/auth/login`).
+### 2. Inyección Automática de Tokens (`AuthInterceptor`)
+Un `Interceptor` personalizado de OkHttp (`AuthInterceptor.kt`) intercepta todas las peticiones salientes hacia el backend:
+- Comprueba dinámicamente si hay un token JWT almacenado.
+- Inyecta la cabecera `Authorization: Bearer <TOKEN>`.
+- Omite automáticamente las cabeceras de autorización en las rutas públicas de autenticación (como `/api/auth/login`).
 
-### 3. Secure Hardware-Backed Storage (`StorageModule`)
-User tokens and session credentials cannot be stored in plain text. The application uses Android's Keystore system:
-- Configures `EncryptedSharedPreferences` with `AES256_GCM` value encryption and `AES256_SIV` key encryption.
-- Keeps authentication sessions secure against unauthorized reads on rooted devices.
+### 3. Almacenamiento Seguro Encriptado por Hardware (`StorageModule`)
+El token de usuario y las credenciales de sesión no pueden guardarse en texto plano. La aplicación utiliza el almacén de claves (Keystore) de Android:
+- Configura `EncryptedSharedPreferences` con encriptación de valores `AES256_GCM` y de claves `AES256_SIV`.
+- Mantiene la sesión segura frente a lecturas no autorizadas en dispositivos con acceso root.
 
-### 4. Custom Downloadable Typography (`Plus Jakarta Sans`)
-The design system defines `Plus Jakarta Sans` as the default font family. To bypass APK size overhead and cache fonts system-wide:
-- Implemented **Downloadable Fonts** via Google Fonts Provider in `Type.kt`.
-- Created `font_certs.xml` containing official Base64 development and production certificate hashes. This prevents security failures during Play Services certificate verification.
-
----
-
-## 5. Main App Features & Screens
-
-### A. Authentication Feature (`features/auth/`)
-- **Login Screen:** Matches the Stitch design system. Features Material Design 3 filled text fields with floating animatable labels, standard `16.dp` corner radius inputs, a primary login button, and branded vector icons for Google and Apple social sign-ins.
-
-### B. Home & Explore Feature (`features/home/`)
-- **TopAppBar:** Custom sticky navigation header displaying brand logos and profile shortcuts.
-- **Hero Header:** A coastline image loaded dynamically via Coil with a custom vertical gradient overlay.
-- **Bento Search Card:** Holds Trip type toggles, full-width fields for Origin, Destination, Dates, and Travelers, and a centered airport swap action button.
-- **Bento Quick Links Grid:** A 2x2 modular grid representing Check-In, Manage Trip, Flight Status, and Help Center services.
-- **Explore Carousel:** A horizontal scroll holding flight cards with pricing overlays and semantic gradient tints (sage green, periwinkle, olive gold).
-- **Mobile Bottom Navigation:** Fixed bottom navigation bar supporting quick switching between Search, My Trips, Alerts, and Profile.
+### 4. Fuentes Descargables Personalizadas (`Plus Jakarta Sans`)
+El diseño del sistema define `Plus Jakarta Sans` como la tipografía por defecto. Para evitar sobrecargar el tamaño del APK:
+- Implementamos **Fuentes Descargables** mediante Google Fonts en `Type.kt`.
+- Creamos `font_certs.xml` con los hashes oficiales Base64 para desarrollo y producción de Google Fonts, lo que evita fallos de firma al descargar la fuente en los dispositivos.
 
 ---
 
-## 6. Gradle Dependencies Breakdown (`app/build.gradle.kts`)
+## 5. Características Principales e Interfaces Implementadas
 
-Here are the key libraries implemented in the project and their technical purposes:
+### A. Módulo de Autenticación (`features/auth/`)
+- **Pantalla de Login:** Fiel al diseño de Stitch. Cuenta con campos de texto MD3 llenos (Filled) con etiquetas flotantes animadas, esquinas superiores redondeadas de `16.dp`, un botón principal de inicio de sesión y botones sociales elegantes para Google y Apple que usan drawables vectoriales nativos.
 
-| Dependency group | Library | Purpose |
+### B. Módulo Home ("Buscar y Explorar Vuelos") (`features/home/`)
+- **TopAppBar:** Cabecera de navegación personalizada con el logo de la aerolínea, título y acceso rápido al perfil de usuario.
+- **Sección Hero:** Un contenedor superior con imagen costera cargada asíncronamente mediante Coil y un degradado de superposición vertical.
+- **Bento Search Card:** Incluye selectores de viaje de ida/vuelta, campos a ancho completo para Origen, Destino, Fechas e Invitados (Travelers) alineados en filas individuales, y un botón de intercambio de aeropuertos en el centro.
+- **Bento Quick Services:** Cuadrícula de servicios 2x2 para acceder de manera directa a *Manage Trip*, *Check-In*, *Flight Status* y *Help Center*.
+- **Explore Carousel:** Un carrusel horizontal con tarjetas de vuelos que muestran tarifas de ofertas especiales y degradados semánticos de marca (sage green, periwinkle y gold).
+- **Barra de Navegación Inferior:** Menú fijo de pestañas rápido para Search, My Trips, Alerts y Profile.
+
+---
+
+## 6. Desglose de Dependencias de Gradle (`app/build.gradle.kts`)
+
+Aquí se detallan las librerías del sistema y sus propósitos técnicos:
+
+| Grupo de Dependencia | Librería | Propósito |
 |---|---|---|
-| **Compose Core** | `androidx.compose.ui:ui` & `ui-graphics` | Main UI elements and vector rendering. |
-| **Material 3** | `androidx.compose.material3:material3` | Material You color themes, buttons, cards, and input text fields. |
-| **Material Icons** | `material-icons-extended` | Provides Extended vector icon sets like `Luggage`, `AirplaneTicket`, and `SupportAgent`. |
-| **Coil** | `io.coil-kt:coil-compose` | Performs asynchronous image loading from URLs. |
-| **Google Fonts** | `ui-text-google-fonts` | Dynamically downloads custom fonts (`Plus Jakarta Sans`) at runtime. |
-| **Hilt DI** | `hilt-android` & `hilt-compiler` | Manages automatic dependency injection. |
-| **Hilt Compose** | `hilt-navigation-compose` | Scopes ViewModels to navigation graph nodes. |
-| **Retrofit** | `retrofit` & `converter-moshi` | HTTP REST client. Converts network payloads into Kotlin objects. |
-| **Moshi** | `moshi-kotlin` | Safe Kotlin JSON parser and serializer. |
-| **Navigation** | `navigation-compose` | Directs Jetpack Compose screen-to-screen navigation routing. |
-| **Security** | `security-crypto` | Implements hardware-backed secure `EncryptedSharedPreferences`. |
+| **Compose Core** | `androidx.compose.ui:ui` & `ui-graphics` | Elementos de UI y renderizado vectorial principal. |
+| **Material 3** | `androidx.compose.material3:material3` | Temas de color de Material You, botones, tarjetas y campos de texto. |
+| **Iconos de Material** | `material-icons-extended` | Proporciona iconos vectoriales extendidos como `Luggage`, `AirplaneTicket` y `SupportAgent`. |
+| **Coil** | `io.coil-kt:coil-compose` | Permite la carga asíncrona de imágenes de red a partir de URLs. |
+| **Google Fonts** | `ui-text-google-fonts` | Descarga de forma dinámica la fuente tipográfica (`Plus Jakarta Sans`) en tiempo de ejecución. |
+| **Hilt DI** | `hilt-android` & `hilt-compiler` | Gobierno e inyección de dependencias estricta. |
+| **Hilt Compose** | `hilt-navigation-compose` | Acopla y limita los ViewModels al ciclo de vida de la navegación Compose. |
+| **Retrofit** | `retrofit` & `converter-moshi` | Cliente REST HTTP para consumir la API del Gateway y mapearla a objetos Kotlin. |
+| **Moshi** | `moshi-kotlin` | Convertidor JSON a clases Kotlin rápido y seguro. |
+| **Navegación** | `navigation-compose` | Gestiona el enrutamiento de pantallas en Jetpack Compose. |
+| **Seguridad** | `security-crypto` | Implementa el almacenamiento encriptado seguro (`EncryptedSharedPreferences`). |
 
 ---
 
-## 7. Build, Build Environment & Run Commands
+## 7. Entorno de Compilación y Comandos para Ejecutar
 
-### Gradle Build Custom JDK Routing
-If Gradle fails to locate a valid `jlink` executable or uses an incorrect JDK version, you must force it to use Android Studio's bundled **JetBrains Runtime (JBR)**.
+### Compilación Personalizada de Gradle usando JDK JBR
+Si Gradle falla al compilar por no encontrar el binario de `jlink` en la ruta antigua del IDE, se debe forzar el uso del **JetBrains Runtime (JBR)** integrado en Android Studio.
 
-#### 1. Stop active Gradle Daemons:
+#### 1. Detener los Daemons activos de Gradle:
 ```powershell
 ./gradlew --stop
 ```
 
-#### 2. Compile and install on the emulator with JBR JAVA_HOME:
+#### 2. Compilar e instalar la aplicación debug forzando el JAVA_HOME de JBR:
 ```powershell
 $env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
 ./gradlew installDebug
 ```
 
-#### 3. Launch the Main Activity on the emulator via ADB:
+#### 3. Iniciar la actividad principal en el emulador mediante ADB:
 ```powershell
 & "C:\Users\Anton\AppData\Local\Android\Sdk\platform-tools\adb.exe" shell am start -n com.alalodev.skylink/com.alalodev.skylink.MainActivity
 ```
