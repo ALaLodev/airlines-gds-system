@@ -1,6 +1,7 @@
 package com.alalodev.skylink.features.auth.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,7 +26,8 @@ import com.alalodev.skylink.R
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onCreateAccountClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     var email by remember { mutableStateOf("") }
@@ -254,7 +256,10 @@ fun LoginScreen(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
-                    )
+                    ),
+                    modifier = Modifier.clickable {
+                        onCreateAccountClick()
+                    }
                 )
             }
         }

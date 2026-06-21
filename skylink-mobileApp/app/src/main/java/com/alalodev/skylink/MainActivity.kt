@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.alalodev.skylink.features.auth.presentation.AuthViewModel
 import com.alalodev.skylink.features.auth.presentation.LoginScreen
+import com.alalodev.skylink.features.auth.presentation.RegisterScreen
 import com.alalodev.skylink.features.home.presentation.HomeScreen
 import com.alalodev.skylink.ui.theme.SkyLinkTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +47,24 @@ fun AppNavigation() {
             LoginScreen(
                 viewModel = viewModel,
                 onLoginSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                onCreateAccountClick = {
+                    navController.navigate("register")
+                }
+            )
+        }
+        composable("register") {
+            val viewModel: AuthViewModel = hiltViewModel()
+            RegisterScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onRegisterSuccess = {
+                    // Navigate to Home page and remove auth screens from stack
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
