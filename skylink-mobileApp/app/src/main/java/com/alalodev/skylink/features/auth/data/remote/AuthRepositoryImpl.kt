@@ -31,12 +31,14 @@ class AuthRepositoryImpl @Inject constructor(
                 roles = listOf("ROLE_CUSTOMER")
             )
             saveToken(mockResponse.token)
+            saveEmail(email)
             return NetworkResult.Success(mockResponse)
         }
 
         return try {
             val response = authApi.login(LoginRequest(email, password))
             saveToken(response.token)
+            saveEmail(email)
             NetworkResult.Success(response)
         } catch (e: Exception) {
             NetworkResult.Error(e)
@@ -51,12 +53,14 @@ class AuthRepositoryImpl @Inject constructor(
                 message = "Mock Registration Successful"
             )
             saveToken(mockResponse.token)
+            saveEmail(email)
             return NetworkResult.Success(mockResponse)
         }
 
         return try {
             val response = authApi.register(RegisterRequest(email, password, "ROLE_CUSTOMER"))
             saveToken(response.token)
+            saveEmail(email)
             NetworkResult.Success(response)
         } catch (e: Exception) {
             NetworkResult.Error(e)
@@ -71,6 +75,7 @@ class AuthRepositoryImpl @Inject constructor(
                 message = "Mock Google Sign-In Successful"
             )
             saveToken(mockResponse.token)
+            saveEmail("test@skylink.com")
             return NetworkResult.Success(mockResponse)
         }
 
@@ -88,6 +93,7 @@ class AuthRepositoryImpl @Inject constructor(
             val registerResult = try {
                 val response = authApi.register(RegisterRequest(email, "GoogleSocialAuthPassword123!", "ROLE_CUSTOMER"))
                 saveToken(response.token)
+                saveEmail(email)
                 NetworkResult.Success(response)
             } catch (e: Exception) {
                 null
@@ -99,11 +105,16 @@ class AuthRepositoryImpl @Inject constructor(
                 // Try logging in instead
                 val loginResult = authApi.login(LoginRequest(email, "GoogleSocialAuthPassword123!"))
                 saveToken(loginResult.token)
+                saveEmail(email)
                 NetworkResult.Success(RegisterResponse(token = loginResult.token, message = "Login successful"))
             }
         } catch (e: Exception) {
             NetworkResult.Error(e)
         }
+    }
+
+    private fun saveEmail(email: String) {
+        sharedPreferences.edit().putString("user_email", email).apply()
     }
 
     override fun saveToken(token: String) {
@@ -117,8 +128,12 @@ class AuthRepositoryImpl @Inject constructor(
         return token
     }
 
+    override fun getEmail(): String? {
+        return sharedPreferences.getString("user_email", null)
+    }
+
     override fun logout() {
-        sharedPreferences.edit().remove("jwt_token").apply()
+        sharedPreferences.edit().remove("jwt_token").remove("user_email").apply()
         authInterceptor.setToken(null)
     }
 

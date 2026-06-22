@@ -33,4 +33,12 @@ public class BookingController {
     public ResponseEntity<List<SeatMapResponse>> getBookedSeatsByFlight(@PathVariable Long flightId) {
         return ResponseEntity.ok(bookingService.getBookedSeats(flightId));
     }
+
+    /**
+     * GET /api/bookings/user/{userId} — Devuelve las reservas de un usuario
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Reservation>> getBookingsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(bookingService.getBookingsByUser(userId));
+    }
 }

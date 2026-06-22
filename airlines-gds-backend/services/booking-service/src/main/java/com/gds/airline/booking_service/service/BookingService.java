@@ -61,4 +61,8 @@ public class BookingService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public List<Reservation> getBookingsByUser(Long userId) {
+        return reservationRepository.findByUserId(userId);
+    }
 }

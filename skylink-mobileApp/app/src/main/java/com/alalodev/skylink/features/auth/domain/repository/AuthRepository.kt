@@ -10,5 +10,6 @@ interface AuthRepository {
     suspend fun signInWithGoogle(idToken: String): NetworkResult<RegisterResponse>
     fun saveToken(token: String)
     fun getToken(): String?
+    fun getEmail(): String?
     fun logout()
 }

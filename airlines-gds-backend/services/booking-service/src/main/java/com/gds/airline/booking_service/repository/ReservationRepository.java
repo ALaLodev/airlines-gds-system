@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     Optional<Reservation> findByPnr(String pnr);
 
+    List<Reservation> findByUserId(Long userId);
+
     // 1. Contar reservas filtrando por estado (Spring hace la query automática por el nombre)
     long countByStatus(PaymentStatus status);
 
